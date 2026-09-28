@@ -1,4 +1,5 @@
 import sqlite3
+from flask import Flask
 
 # Create the DB file
 connection = sqlite3.connect("subscription.db")
@@ -14,3 +15,11 @@ connection.execute("""
 """)
 
 connection.close()
+
+app = Flask(__name__)
+@app.route('/')
+def page():
+    return "Homepage"
+
+if __name__ == '__main__':
+    app.run(debug=True)
