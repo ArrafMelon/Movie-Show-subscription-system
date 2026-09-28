@@ -26,6 +26,30 @@ def page():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        password = request.form["password"]
+
+        # check empty values
+        if not name or not email or not password:
+            return render_template("registration.html", message="No fields can be empty, try again")
+
+        # Formatting of email
+        if "@" not in email:
+            return render_template("registration.html", message="invalid email type, make sure '@' is included in email")
+
+        # inserting user details in db
+        connection = sqlite3.connect("subscription.db")
+        try:
+            connection.execute("INSERT INTO user_details (name, email, password) VALUES (?, ?, ?)", (name, email, password))
+            connection.commit()
+        # error handling for duplicate emails when registered
+        except sqlite3.IntegrityError:
+            connection.close()
+            return render_template("registration.html", message="Email already exists")
+        connection.close()
+        return render_template("registration.html", message="Successfully registered!")
     return render_template("registration.html")
 
 if __name__ == '__main__':
