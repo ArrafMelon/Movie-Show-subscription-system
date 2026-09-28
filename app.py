@@ -1,5 +1,7 @@
 import sqlite3
 from flask import Flask
+from flask import render_template
+from flask import request
 
 # Create the DB file
 connection = sqlite3.connect("subscription.db")
@@ -16,10 +18,16 @@ connection.execute("""
 
 connection.close()
 
+# Flask app
 app = Flask(__name__)
 @app.route('/')
 def page():
-    return "Homepage"
+    return render_template("homepage.html")
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    return render_template("registration.html")
 
 if __name__ == '__main__':
     app.run(debug=True)
+
