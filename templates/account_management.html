@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Account Management</title>
+</head>
+<body>
+    <h1>Account Management</h1>
+    <div style = "text-align: left;">
+        {% if session.name %}
+            User name: {{ session.name }}
+    <br>
+            User email: {{session.email}}
+    <br>
+        {% endif %}
+    </div>
+    <br>
+    <a href="/namechange">Change Name</a>
+    <br>
+    <a href="/pwdchange">Change Password</a>
+    <br>
+    <a href="/">Back to Home</a>
+</body>
+</html>

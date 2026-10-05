@@ -79,8 +79,11 @@ def login():
         connection.close()
         if user is None:
             return render_template("login.html", message="Invalid email or password")
-        # session for homepage to show what user is logged in
+        # saving session information
         session["name"] = user[1]
+        session["id"] = user[0]
+        session["email"] = user[2]
+        session["password"] = user[3]
         return render_template("login.html", message="Successfully Logged in")
     
     return render_template("login.html")
@@ -94,6 +97,81 @@ def logout():
         return render_template("homepage.html", message="Successfully logged out")
     return render_template("homepage.html", message="Not currently logged in")
 
+@app.route('/accmgmt', methods=['GET', 'POST'])
+def account_management():
+    """
+    Account management page for
+    Changing name and password
+    """
+    if "email" not in session:
+        return render_template("login.html", message = "Create account first")
+    return render_template("account_management.html")
+
+@app.route('/namechange', methods=['GET', 'POST'])
+def change_name():
+    """
+    ability to change name by asking new name and confirming new name
+    """
+    if "email" not in session:
+        return render_template("login.html", message = "Create account first")
+    if request.method == "POST":
+        # ask for new name and confirm new name fields
+        newname = request.form["newname"]
+        newname2 = request.form["newname2"]
+        if not newname or not newname2:
+            return render_template("namechange.html", message="No fields can be empty, try again")
+        # new name and confirm new name must match
+        if newname != newname2:
+            return render_template("namechange.html", message="Names must match, try again")
+
+        # update in sql db
+        connection = sqlite3.connect("subscription.db")
+        user  = connection.execute("""
+            UPDATE user_details SET name = ? WHERE id = ?
+            """, (newname, session["id"]))
+        connection.commit()
+        connection.close()
+        session["name"] = newname
+
+        return render_template("namechange.html", message="Name changed successfully!")
+    return render_template("namechange.html")
+
+@app.route('/pwdchange', methods=['GET', 'POST'])
+def change_password():
+    """
+    ability to change password by asking old pwd and asking for new pwd twice
+    """
+    if "email" not in session:
+        return render_template("login.html", message = "Create account first")
+    
+    if request.method == "POST":
+        # ask for old password, and new password twice
+        password = request.form["password"]
+        newpassword = request.form["newpassword"]
+        newpassword2 = request.form["newpassword2"]
+
+        if not password or not newpassword or not newpassword2:
+            return render_template("pwdchange.html", message="No fields can be empty, try again")
+        
+        # Old password entered must match what is in the db
+        if password != session["password"]:
+            return render_template("pwdchange.html", message="Password entered is not correct, try again")
+        
+        # new pwd and confirm pwd must match
+        if newpassword != newpassword2:
+            return render_template("pwdchange.html", message="New passwords don't match, try again")
+
+        # update in sql db
+        connection = sqlite3.connect("subscription.db")
+        user  = connection.execute("""
+            UPDATE user_details SET password = ? WHERE id = ?
+            """, (newpassword, session["id"]))
+        connection.commit()
+        connection.close()
+        session["password"] = newpassword
+
+        return render_template("pwdchange.html", message="Password changed successfully!")
+    return render_template("pwdchange.html")
 
 if __name__ == '__main__':
     app.run(debug=True)

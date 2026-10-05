@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Change Password</title>
+</head>
+<body>
+    <h1>Change Password</h1>
+
+    <p>{{ message }}</p>
+
+    <form method="POST">
+
+        <label>Old password</label><br>
+        <input type="password" name="password"><br><br>
+
+        <label>Enter new password</label><br>
+        <input type="password" name="newpassword"><br><br>
+
+        <label>Confirm new password</label><br>
+        <input type="password" name="newpassword2"><br><br>
+
+        <button type="submit">Change password</button>
+    </form>
+
+    <a href="/accmgmt">Back to Account Management</a>
+</body>
+</html>
