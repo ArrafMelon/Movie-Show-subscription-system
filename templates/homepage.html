@@ -7,10 +7,10 @@
     <p>{{ message }}</p>
     <div style = "text-align: right;">
         {% if session.name %}
-            Signed in as: {{ session.name }}
-            <br>
-            <a href="/logout">Logout</a>
-            <br>
+            Signed in as: {{ session.name }}<br>
+            
+            <a href="/logout">Logout</a><br>
+            
             <a href="/accmgmt">Account Management</a>
         {% endif %}
     </div>

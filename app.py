@@ -7,13 +7,14 @@ from flask import session
 # Create the DB file
 connection = sqlite3.connect("subscription.db")
 
-# Creation of registration table (unique ID, name (First Last), unique email, password)
+# Creation of registration table (unique ID, name (First Last), unique email, password, account type (user or admin))
 connection.execute("""
     CREATE TABLE IF NOT EXISTS user_details(
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    account_type TEXT NOT NULL
     )
 """)
 
@@ -33,6 +34,7 @@ def register():
         name = request.form["name"]
         email = request.form["email"]
         password = request.form["password"]
+        account_type = request.form["account_type"]
 
         # check empty values
         if not name or not email or not password:
@@ -45,7 +47,7 @@ def register():
         # inserting user details in db
         connection = sqlite3.connect("subscription.db")
         try:
-            connection.execute("INSERT INTO user_details (name, email, password) VALUES (?, ?, ?)", (name, email, password))
+            connection.execute("INSERT INTO user_details (name, email, password, account_type) VALUES (?, ?, ?, ?)", (name, email, password, account_type))
             connection.commit()
         # error handling for duplicate emails when registered
         except sqlite3.IntegrityError:
@@ -84,6 +86,7 @@ def login():
         session["id"] = user[0]
         session["email"] = user[2]
         session["password"] = user[3]
+        session["account_type"] = user[4]
         return render_template("login.html", message="Successfully Logged in")
     
     return render_template("login.html")
