@@ -107,7 +107,7 @@ def account_management():
     Changing name and password
     """
     if "email" not in session:
-        return render_template("login.html", message = "Create account first")
+        return render_template("login.html", message = "Log into account first")
     return render_template("account_management.html")
 
 @app.route('/namechange', methods=['GET', 'POST'])
@@ -116,7 +116,7 @@ def change_name():
     ability to change name by asking new name and confirming new name
     """
     if "email" not in session:
-        return render_template("login.html", message = "Create account first")
+        return render_template("login.html", message = "Log into account first")
     if request.method == "POST":
         # ask for new name and confirm new name fields
         newname = request.form["newname"]
@@ -145,7 +145,7 @@ def change_password():
     ability to change password by asking old pwd and asking for new pwd twice
     """
     if "email" not in session:
-        return render_template("login.html", message = "Create account first")
+        return render_template("login.html", message = "Log into account first")
     
     if request.method == "POST":
         # ask for old password, and new password twice
