@@ -79,11 +79,21 @@ def login():
         connection.close()
         if user is None:
             return render_template("login.html", message="Invalid email or password")
-        # for homepage to show what user is logged in
+        # session for homepage to show what user is logged in
         session["name"] = user[1]
         return render_template("login.html", message="Successfully Logged in")
     
     return render_template("login.html")
+
+@app.route('/logout', methods=['GET', 'POST'])
+# Logging out for existing user
+def logout():
+    # clearing session if session is not empty
+    if session:
+        session.clear()
+        return render_template("homepage.html", message="Successfully logged out")
+    return render_template("homepage.html", message="Not currently logged in")
+
 
 if __name__ == '__main__':
     app.run(debug=True)
