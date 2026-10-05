@@ -4,18 +4,24 @@
     <title>Movie/Show Subscription System</title>
 </head>
 <body>
+    <h1>Welcome to the Movie/Show Subscription System</h1>
     <p>{{ message }}</p>
     <div style = "text-align: right;">
         {% if session.name %}
             Signed in as: {{ session.name }}<br>
+
+            Account type: {{ session.account_type }}<br>
             
             <a href="/logout">Logout</a><br>
             
             <a href="/accmgmt">Account Management</a>
         {% endif %}
     </div>
-    <h1>Welcome to the Movie/Show Subscription System</h1>
-    <a href="/register">Register</a>
-    <a href="/login">Login</a>
+    <div style = "text-align: left;">
+        {% if not session.name %}
+        <a href="/register">Register</a><br>
+        <a href="/login">Login</a><br>
+        {% endif %}
+    </div>
 </body>
 </html>
