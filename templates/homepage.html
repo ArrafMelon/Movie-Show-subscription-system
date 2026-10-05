@@ -4,6 +4,11 @@
     <title>Movie/Show Subscription System</title>
 </head>
 <body>
+    <div style = "text-align: right;">
+        {% if session.name %}
+            Signed in as: {{ session.name }}
+        {% endif %}
+    </div>
     <h1>Welcome to the Movie/Show Subscription System</h1>
     <a href="/register">Register</a>
     <a href="/login">Login</a>

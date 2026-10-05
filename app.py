@@ -2,6 +2,7 @@ import sqlite3
 from flask import Flask
 from flask import render_template
 from flask import request
+from flask import session
 
 # Create the DB file
 connection = sqlite3.connect("subscription.db")
@@ -20,6 +21,7 @@ connection.close()
 
 # Flask app
 app = Flask(__name__)
+app.secret_key = "secret-key"
 @app.route('/')
 def page():
     return render_template("homepage.html")
@@ -77,6 +79,8 @@ def login():
         connection.close()
         if user is None:
             return render_template("login.html", message="Invalid email or password")
+        # for homepage to show what user is logged in
+        session["name"] = user[1]
         return render_template("login.html", message="Successfully Logged in")
     
     return render_template("login.html")
