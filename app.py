@@ -18,6 +18,17 @@ connection.execute("""
     )
 """)
 
+# Media Table to store details for movies/ shows
+connection.execute("""
+    CREATE TABLE IF NOT EXISTS media_details(
+    media_id INTEGER PRIMARY KEY,
+    media_name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    media_type TEXT NOT NULL,
+    image_file_name TEXT NOT NULL
+    )
+""")
+
 connection.close()
 
 # Flask app
@@ -175,6 +186,37 @@ def change_password():
 
         return render_template("pwdchange.html", message="Password changed successfully!")
     return render_template("pwdchange.html")
+
+@app.route('/addmedia', methods=['GET', 'POST'])
+def add_media():
+    # Admins being able to add shows or movies
+    if request.method == "POST":
+        media_name = request.form["media_name"]
+        description = request.form["description"]
+        media_type = request.form["media_type"]
+        image = request.files["image_file_name"]
+        image_file_name = image.filename
+
+        # check empty values
+        if not media_name or not image_file_name or not description:
+            return render_template("add_media.html", message="No fields can be empty, try again")
+
+        # save image onto static/images
+        image.save("static/images/" + image_file_name)
+
+        # inserting media details in db
+        connection = sqlite3.connect("subscription.db")
+        try:
+            connection.execute("INSERT INTO media_details (media_name, description, media_type, image_file_name) VALUES (?, ?, ?, ?)", (media_name, description, media_type, image_file_name))
+            connection.commit()
+        # error handling for duplicate media when registered
+        except sqlite3.IntegrityError:
+            connection.close()
+            return render_template("add_media.html", message="Media Already Exists!")
+        connection.close()
+        return render_template("add_media.html", message="Successfully Added!")
+    return render_template("add_media.html")
+        
 
 if __name__ == '__main__':
     app.run(debug=True)

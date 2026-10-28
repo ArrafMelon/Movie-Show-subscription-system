@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add a Show or Movie (Admin use only)</title>
+</head>
+<body>
+    <h1>Add Media</h1>
+
+    <p>{{ message }}</p>
+
+    <form method="POST" enctype="multipart/form-data">
+        <label>Media Name</label><br>
+        <input type="text" name="media_name"><br><br>
+
+        <label>Description</label><br>
+        <input type="text" name="description"><br><br>
+
+        <label>Media type</label><br>
+        <select name="media_type">
+            <option value="Show">Show</option>
+            <option value="Movie">Movie</option>
+        </select><br><br>
+
+        <label>Add Image</label><br>
+        <input type="file" name="image_file_name" accept="image/*"><br><br>
+
+        <button type="submit">Add Media</button>
+    </form>
+
+    <a href="/">Back to Home</a>
+</body>
+</html>

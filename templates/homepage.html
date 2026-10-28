@@ -18,6 +18,22 @@
         {% endif %}
     </div>
     <div style = "text-align: left;">
+        {% if session.account_type == "Admin" %}
+            <a href="/addmedia">Add Media</a><br>
+
+            <a href="/searchmedia">Search available Media</a><br>
+            
+            <a href="/yourdashboard">Your Dashboard</a>
+        {% endif %}
+        {% if session.account_type == "User" %}
+            <a href="/yourshows">Your Subscriptions</a><br>
+
+            <a href="/searchmedia">Search available Media</a><br>
+            
+            <a href="/yourdashboard">Your Dashboard</a>
+        {% endif %}
+    </div>
+    <div style = "text-align: left;">
         {% if not session.name %}
         <a href="/register">Register</a><br>
         <a href="/login">Login</a><br>
