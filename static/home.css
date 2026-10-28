@@ -1,0 +1,212 @@
+/* purple flowing background*/
+body {
+    background: linear-gradient(
+        135deg,
+        #090312 0%,
+        #1b0b35 35%,
+        #3b126b 65%,
+        #10051c 100%
+    );
+    background-size: 200% 200%;
+    animation: backgroundGlow 15s ease infinite;
+
+    min-height: 100vh;
+    margin: 0;
+
+    font-family: "Press Start 2P", Consolas, monospace;
+    color: #e9d5ff;
+    line-height: 1.8;
+    overflow-x: hidden;
+}
+
+@keyframes backgroundGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+}
+
+
+/* format for every page */
+.page-content {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 100vh;
+    padding: 40px 20px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+
+    text-align: center;
+    overflow-wrap: anywhere;
+
+    animation: contentAppear 1.5s ease-out both;
+}
+
+@keyframes contentAppear {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes messageAppear {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+
+h1 {
+    color: #d8b4fe;
+    font-size: clamp(12px, 2.2vw, 22px);
+    margin: 0;
+}
+
+p {
+    color: #ffff00;
+}
+
+a {
+    color: #e9d5ff;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: white;
+}
+
+
+/* typing animation fof the end of words on page titles */
+.typing-title {
+    width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 3px solid #d8b4fe;
+
+    animation:
+        typing 2s steps(var(--chars), end) 0.5s forwards,
+        titleCursor 0.8s step-end 0.5s infinite;
+}
+
+@keyframes typing {
+    to { width: calc(var(--chars) * 1ch); }
+}
+
+@keyframes titleCursor {
+    from, to { border-color: transparent; }
+    50%      { border-color: #d8b4fe; }
+}
+
+
+/* homepage: title */
+.home-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    line-height: 2;
+    font-size: clamp(10px, 2.2vw, 22px);
+}
+
+.home-title span {
+    width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 3px solid #d8b4fe;
+    text-shadow:
+        0 0 8px rgba(130, 58, 201, 0.9),
+        0 0 20px rgba(147, 51, 234, 0.7);
+
+    animation:
+        typing var(--time) steps(var(--chars), end) var(--delay) forwards,
+        titleCursor 0.8s step-end var(--delay) forwards;
+}
+
+.home-title span:nth-child(1) { --chars: 14; --time: 1.8s; --delay: 0.5s; }
+.home-title span:nth-child(2) { --chars: 10; --time: 1.4s; --delay: 2.3s; }
+.home-title span:nth-child(3) { --chars: 19; --time: 2.3s; --delay: 3.7s; }
+.home-title span:nth-child(3) { animation-iteration-count: 1, infinite;   }
+
+/* message, account info*/
+.home-message {
+    opacity: 0;
+    animation: messageAppear 1.5s ease 6s forwards;
+}
+
+.account-info {
+    line-height: 2.5;
+    opacity: 0;
+    animation: messageAppear 1.5s ease 6.4s forwards;
+}
+
+.home-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin: 10px 0;
+
+    opacity: 0;
+    animation: messageAppear 1.5s ease 6.8s forwards;
+}
+
+
+/* login, register, change name and change password pages */
+.form-page > p {
+    opacity: 0;
+    animation: messageAppear 1.3s ease 3s forwards;
+}
+
+.form-page > form,
+.form-page > a {
+    opacity: 0;
+    animation: messageAppear 1.5s ease 3.5s forwards;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+input,
+select {
+    box-sizing: border-box;
+    width: min(300px, 80vw);
+    padding: 10px;
+
+    border: 1px solid #b28ad8;
+    border-radius: 5px;
+    background: rgba(20, 5, 40, 0.85);
+    color: white;
+
+    font-family: inherit;
+    font-size: 12px;
+}
+
+option {
+    background-color: #1b0b35;
+    color: white;
+}
+
+button {
+    color: white;
+    background-color: #5c2391;
+
+    border: 1px solid #b28ad8;
+    border-radius: 5px;
+    padding: 12px 22px;
+
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+    background-color: #7b35b5;
+    transform: scale(1.02);
+}

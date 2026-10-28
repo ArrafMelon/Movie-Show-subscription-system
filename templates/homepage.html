@@ -2,22 +2,19 @@
 <html>
 <head>
     <title>Movie/Show Subscription System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class = "page-content">
     <h1>Welcome to the Movie/Show Subscription System</h1>
     <p>{{ message }}</p>
-    <div style = "text-align: right;">
-        {% if session.name %}
+    {% if session.name %}
             Signed in as: {{ session.name }}<br>
 
             Account type: {{ session.account_type }}<br>
-            
-            <a href="/logout">Logout</a><br>
-            
-            <a href="/accmgmt">Account Management</a>
-        {% endif %}
-    </div>
-    <div style = "text-align: left;">
+    {% endif %}
+    <div style = "text-align: left; margin-right: 300px;">
         {% if session.account_type == "Admin" %}
             <a href="/addmedia">Add Media</a><br>
 
@@ -33,11 +30,19 @@
             <a href="/yourdashboard">Your Dashboard</a>
         {% endif %}
     </div>
+    <div style = "text-align: right; margin-left: 300px;">
+        {% if session.name %}
+            <a href="/logout">Logout</a><br>
+            
+            <a href="/accmgmt">Account Management</a>
+        {% endif %}
+    </div>
     <div style = "text-align: left;">
         {% if not session.name %}
         <a href="/register">Register</a><br>
         <a href="/login">Login</a><br>
         {% endif %}
+    </div>
     </div>
 </body>
 </html>

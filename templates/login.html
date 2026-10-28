@@ -2,8 +2,11 @@
 <html>
 <head>
     <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class = "page-content">
     <h1>Login to your Account</h1>
 
     <p>{{ message }}</p>
@@ -20,5 +23,6 @@
     </form>
 
     <a href="/">Back to Home</a>
+    </div>
 </body>
 </html>
