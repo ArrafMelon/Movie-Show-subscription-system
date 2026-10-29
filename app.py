@@ -223,12 +223,29 @@ def add_media():
 def search_media():
     # Users and admins being able to search media, filter, and users should be able to subscribe
     if request.method == "GET":
-        # fetching media from db
+        genre = request.args.get("genre")
+        media_type = request.args.get("media_type")
+        search = request.args.get("search")
+
+        # fetching media from db using filters (genre filtre first)
         connection = sqlite3.connect("subscription.db")
-        all_media = connection.execute("SELECT * FROM media_details").fetchall()
+        if genre:
+            all_media = connection.execute("SELECT * FROM media_details WHERE genre=?",(genre,)).fetchall()
+        # media type filter
+        elif media_type:
+            all_media = connection.execute("SELECT * FROM media_details WHERE media_type=?",(media_type,)).fetchall()
+        # search filter
+        elif search:
+            all_media = connection.execute("SELECT * FROM media_details WHERE media_name LIKE ?",("%"+search+"%",)).fetchall()
+        else:
+            all_media = connection.execute("SELECT * FROM media_details").fetchall()
+
         connection.close()
         return render_template("search_media.html", all_media=all_media)
+
     return render_template("search_media.html")
+
+    
 
         
 

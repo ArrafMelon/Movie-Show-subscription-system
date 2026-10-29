@@ -8,6 +8,32 @@
 <body>
     <div class = "page-content">
     <h1>Search Media</h1>
+    
+    <form method="GET" style="flex-direction: row; justify-content: center;">
+
+    <div class="topnav">
+    <input type="text" name="search" placeholder="Search..">
+    </div>
+
+        <select name="genre">
+            <option value="">Show all</option>
+            <option value="Action">Action</option>
+            <option value="Comedy">Comedy</option>
+            <option value="Horror">Horror</option>
+            <option value="Sci-fi">Sci-fi</option>
+            <option value="Romance">Romance</option>
+            <option value="Mature">Mature</option>
+        </select><br><br>
+
+        <select name="media_type">
+            <option value="">Show all</option>
+            <option value="Show">Show</option>
+            <option value="Movie">Movie</option>
+        </select><br><br>
+
+        <button type="submit">Apply Filters</button>
+    </form>
+
     <style>
         .bounding-box {
             border: 2px solid #a56de4;
