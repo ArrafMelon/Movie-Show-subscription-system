@@ -218,6 +218,18 @@ def add_media():
         connection.close()
         return render_template("add_media.html", message="Successfully Added!")
     return render_template("add_media.html")
+
+@app.route('/searchmedia', methods=['GET', 'POST'])
+def search_media():
+    # Users and admins being able to search media, filter, and users should be able to subscribe
+    if request.method == "GET":
+        # fetching media from db
+        connection = sqlite3.connect("subscription.db")
+        all_media = connection.execute("SELECT * FROM media_details").fetchall()
+        connection.close()
+        return render_template("search_media.html", all_media=all_media)
+    return render_template("search_media.html")
+
         
 
 if __name__ == '__main__':

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search for Movies or Shows</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class = "page-content">
+    <h1>Search Media</h1>
+    <style>
+        .bounding-box {
+            border: 2px solid #a56de4;
+            padding: 10px;
+        }
+    </style>
+   {% for media in all_media %}
+        <div class="bounding-box">
+        <img src="{{ url_for('static',filename='images/' + media[4])}}", width="225">
+        <br>
+        {{ "Name: " + media[1] }}<br>
+        {{ "Description: " + media[2] }}<br>
+        {{ "Media Type: " + media[3] }}<br>
+        {{ "Genre: " + media[5] }}<br><br>
+        </div>
+   {% else %}
+        <p>No Media Available yet</p>
+   {% endfor %}
+
+    <a href="/">Back to Home</a>
+    </div>
+</body>
+</html>
