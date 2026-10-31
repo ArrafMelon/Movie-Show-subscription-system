@@ -26,7 +26,23 @@ connection.execute("""
     description TEXT NOT NULL,
     media_type TEXT NOT NULL,
     image_file_name TEXT NOT NULL,
-    genre TEXT NOT NULL
+    genre TEXT NOT NULL,
+    length_minutes INTEGER CHECK (length_minutes > 0),
+    num_seasons_show INTEGER CHECK (num_seasons_show > 0),
+    num_episodes_per_season_show INTEGER CHECK (num_episodes_per_season_show > 0)
+    )
+""")
+
+
+# Table to store subscriptions per user
+connection.execute("""
+    CREATE TABLE IF NOT EXISTS user_subscriptions(
+    subscription_id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    media_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user_details(id),
+    FOREIGN KEY (media_id) REFERENCES media_details(media_id),
+    UNIQUE(user_id,media_id)
     )
 """)
 
@@ -198,10 +214,23 @@ def add_media():
         image = request.files["image_file_name"]
         image_file_name = image.filename
         genre = request.form["genre"]
+        length_minutes = request.form["length_minutes"]
 
         # check empty values
-        if not media_name or not image_file_name or not description or not genre:
+        if not media_name or not image_file_name or not description or not genre or not length_minutes:
             return render_template("add_media.html", message="No fields can be empty, try again")
+
+        # check whether media is show or movie (with a show you can add seasons and episodes)
+        if media_type == "Show":
+            num_seasons_show = request.form["num_seasons_show"]
+            num_episodes_per_season_show = request.form["num_episodes_per_season_show"]
+
+            if not num_seasons_show or not num_episodes_per_season_show:
+                return render_template("add_media.html", message="No fields can be empty, try again")
+
+        elif media_type == "Movie":
+            num_seasons_show = None
+            num_episodes_per_season_show = None
 
         # save image onto static/images
         image.save("static/images/" + image_file_name)
@@ -209,7 +238,9 @@ def add_media():
         # inserting media details in db
         connection = sqlite3.connect("subscription.db")
         try:
-            connection.execute("INSERT INTO media_details (media_name, description, media_type, image_file_name, genre) VALUES (?, ?, ?, ?, ?)", (media_name, description, media_type, image_file_name, genre))
+            connection.execute("INSERT INTO media_details (media_name, description, media_type, image_file_name, genre,length_minutes,num_seasons_show,num_episodes_per_season_show) VALUES (?, ?, ?, ?, ?, ?,?,?)", 
+                               (media_name, description, media_type, image_file_name, genre, length_minutes,num_seasons_show,num_episodes_per_season_show))
+            
             connection.commit()
         # error handling for duplicate media when registered
         except sqlite3.IntegrityError:
@@ -245,7 +276,12 @@ def search_media():
 
     return render_template("search_media.html")
 
-    
+@app.route('/mysubscriptions', methods=['GET', 'POST'])
+def add_subscription():
+    """
+    When a user clicks on the subscribe button in search media tab, their subscription
+    should store automatically in the my subscriptions list
+    """    
 
         
 

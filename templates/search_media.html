@@ -48,6 +48,17 @@
         {{ "Description: " + media[2] }}<br>
         {{ "Media Type: " + media[3] }}<br>
         {{ "Genre: " + media[5] }}<br><br>
+
+        {% if media[3] == 'Show' %}
+        {{ "Seasons: " ~ media[7] }}<br>
+        {{ "Episodes: " ~ media[8] }}<br>
+        {{ "Episode length (minutes): " ~ media[6] }}<br>
+
+        {% else %}
+        {{ "Movie length (minutes): " ~ media[6] }}<br>
+        {% endif %}
+
+        <button type="subscribe">Subscribe</button>
         </div>
    {% else %}
         <p>No Media Available yet</p>
