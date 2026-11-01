@@ -276,12 +276,31 @@ def search_media():
 
     return render_template("search_media.html")
 
-@app.route('/mysubscriptions', methods=['GET', 'POST'])
+@app.route('/subscribe', methods=['GET', 'POST'])
 def add_subscription():
     """
     When a user clicks on the subscribe button in search media tab, their subscription
     should store automatically in the my subscriptions list
-    """    
+    """
+    # Note that only regular users should be able to subscribe, not admiins
+    if session.get("account_type") != "User":
+        return render_template("login.html", message = "Log into account first")
+    if request.method == "POST":
+        media_id = request.form["media_id"]
+
+    # adding subscribed media onto users subscriptions
+        connection = sqlite3.connect("subscription.db")
+        try:
+            connection.execute("INSERT INTO user_subscriptions (user_id, media_id) VALUES (?,?)",(session["id"],media_id))
+            connection.commit()
+            message="Subscribed :)"
+        except sqlite3.IntegrityError:
+            message = "Already Subscribed"
+        all_media=connection.execute("SELECT * FROM media_details").fetchall()
+        connection.close()
+        return render_template("search_media.html", all_media=all_media, message=message)
+    return render_template("search_media.html")
+
 
         
 

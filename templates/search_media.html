@@ -8,6 +8,7 @@
 <body>
     <div class = "page-content">
     <h1>Search Media</h1>
+    <p>{{message}}</p>
     
     <form method="GET" style="flex-direction: row; justify-content: center;">
 
@@ -57,8 +58,12 @@
         {% else %}
         {{ "Movie length (minutes): " ~ media[6] }}<br>
         {% endif %}
-
-        <button type="subscribe">Subscribe</button>
+        {% if session.account_type == "User" %}
+        <form method="POST" action="/subscribe">
+        <input type="hidden" name="media_id" value="{{ media[0] }}">
+        <button type="submit">Subscribe</button>
+        </form>
+        {% endif %}
         </div>
    {% else %}
         <p>No Media Available yet</p>
