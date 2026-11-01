@@ -8,6 +8,7 @@
 <body>
     <div class = "page-content">
     <h1>My Subscriptions</h1>
+    <p>{{message}}</p>
 
     <style>
         .bounding-box {
@@ -32,6 +33,11 @@
         {% else %}
         {{ "Movie length (minutes): " ~ media[6] }}<br>
         {% endif %}
+
+        <form method="POST" action="/unsubscribe">
+        <input type="hidden" name="media_id" value="{{ media[0] }}">
+        <button type="submit">Unsubscribe</button>
+        </form>
         
         </div>
    {% else %}

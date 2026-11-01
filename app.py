@@ -315,6 +315,27 @@ def my_subscriptions():
         connection.close()
         return render_template("mysubscriptions.html", all_media=all_media)
     return render_template("mysubscriptions.html")
+
+@app.route('/unsubscribe', methods=['GET','POST'])
+def unsubscribe():
+    # removed show off of your subscriptions page
+    if request.method == "POST":
+        media_id = request.form["media_id"]
+        user_id = session["id"]
+
+    # adding subscribed media onto users subscriptions
+        connection = sqlite3.connect("subscription.db")
+        
+        connection.execute("DELETE FROM user_subscriptions WHERE user_id=? and media_id=?",
+                           (session["id"],media_id))
+        connection.commit()
+        message="Unsubscribed"
+        all_media = connection.execute("SELECT media_details.* FROM user_subscriptions JOIN media_details ON user_subscriptions.media_id=media_details.media_id WHERE user_subscriptions.user_id=?",
+                                           (user_id,)).fetchall()
+        connection.close()
+        return render_template("mysubscriptions.html", all_media=all_media, message=message)
+    return render_template("mysubscriptions.html")
+
     
 
         
