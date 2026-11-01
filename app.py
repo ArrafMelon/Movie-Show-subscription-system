@@ -284,7 +284,7 @@ def add_subscription():
     """
     # Note that only regular users should be able to subscribe, not admiins
     if session.get("account_type") != "User":
-        return render_template("login.html", message = "Log into account first")
+        return render_template("search_media.html", message = "Accessible by users only")
     if request.method == "POST":
         media_id = request.form["media_id"]
 
@@ -301,6 +301,21 @@ def add_subscription():
         return render_template("search_media.html", all_media=all_media, message=message)
     return render_template("search_media.html")
 
+@app.route('/mysubscriptions', methods=['GET','POST'])
+def my_subscriptions():
+    # subscriptions page for users to see their subscriptions
+    if "email" not in session:
+        return render_template("login.html", message = "Log into account first")
+    if request.method == "GET":
+        user_id = session["id"]
+
+        connection = sqlite3.connect("subscription.db")
+        all_media = connection.execute("SELECT media_details.* FROM user_subscriptions JOIN media_details ON user_subscriptions.media_id=media_details.media_id WHERE user_subscriptions.user_id=?",
+                                   (user_id,)).fetchall()
+        connection.close()
+        return render_template("mysubscriptions.html", all_media=all_media)
+    return render_template("mysubscriptions.html")
+    
 
         
 
