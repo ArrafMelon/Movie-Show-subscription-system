@@ -3,6 +3,7 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from flask import session
+from flask import redirect, url_for
 
 # Create the DB file
 connection = sqlite3.connect("subscription.db")
@@ -82,7 +83,8 @@ def register():
             connection.close()
             return render_template("registration.html", message="Email already exists")
         connection.close()
-        return render_template("registration.html", message="Successfully registered!")
+        return render_template("registration.html", message="Successfully registered!",
+            redirect_after_register=True)
     return render_template("registration.html")
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -115,8 +117,9 @@ def login():
         session["email"] = user[2]
         session["password"] = user[3]
         session["account_type"] = user[4]
-        return render_template("login.html", message="Successfully Logged in")
-    
+        #redirecting to dashboard after successful logiin
+        return render_template("login.html", message="Successfully Logged in!", 
+            redirect_after_login=True)
     return render_template("login.html")
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -213,13 +216,20 @@ def add_media():
         media_type = request.form["media_type"]
         image = request.files["image_file_name"]
         image_file_name = image.filename
-        genre = request.form["genre"]
+        #multigenre
+        genres = request.form.getlist("genre")
+        genre=', '.join(genres)
         length_minutes = request.form["length_minutes"]
+        
 
         # check empty values
         if not media_name or not image_file_name or not description or not genre or not length_minutes:
             return render_template("add_media.html", message="No fields can be empty, try again")
-
+        
+        # at least 1 genre
+        if not genres:
+            return render_template("add_media.html", message = "Please select at least one genre.")
+        
         # check whether media is show or movie (with a show you can add seasons and episodes)
         if media_type == "Show":
             num_seasons_show = request.form["num_seasons_show"]
@@ -261,7 +271,7 @@ def search_media():
         # fetching media from db using filters (genre filtre first)
         connection = sqlite3.connect("subscription.db")
         if genre:
-            all_media = connection.execute("SELECT * FROM media_details WHERE genre=?",(genre,)).fetchall()
+            all_media = connection.execute("""SELECT * FROM media_details WHERE ',' || REPLACE(genre, ', ', ',') || ',' LIKE ?""",(f"%,{genre},%",)).fetchall()
         # media type filter
         elif media_type:
             all_media = connection.execute("SELECT * FROM media_details WHERE media_type=?",(media_type,)).fetchall()
@@ -271,10 +281,43 @@ def search_media():
         else:
             all_media = connection.execute("SELECT * FROM media_details").fetchall()
 
+        #subscribed
+        subscribed_ids =[]
+        if session.get("account_type")=="User":
+            user_id= session['id']
+            subscribed_ids = [
+                row[0] for row in connection.execute(
+                    "SELECT media_id FROM user_subscriptions WHERE user_id=?", (user_id,)
+                ).fetchall()
+            ]
+            
         connection.close()
-        return render_template("search_media.html", all_media=all_media)
+        return render_template("search_media.html", all_media=all_media, subscribed_ids=subscribed_ids)
 
     return render_template("search_media.html")
+
+@app.route('/media/<int:media_id>')
+def media_details(media_id):
+    connection = sqlite3.connect("subscription.db")
+    
+    media = connection.execute(
+        "SELECT * FROM media_details WHERE media_id = ?", (media_id,)
+    ).fetchone()
+    
+    is_subscribed=False
+    if "id" in session and session.get("account_type") == "User":
+        result= connection.execute(
+            "SELECT * FROM user_subscriptions WHERE user_id=? AND media_id=?",
+            (session["id"], media_id)
+        ).fetchone()
+        
+        if result: is_subscribed=True
+    
+    connection.close()
+    
+    if media is None: return "Media not found", 404
+    
+    return render_template("media_details.html", media=media, is_subscribed=is_subscribed)
 
 @app.route('/subscribe', methods=['GET', 'POST'])
 def add_subscription():
@@ -284,9 +327,12 @@ def add_subscription():
     """
     # Note that only regular users should be able to subscribe, not admiins
     if session.get("account_type") != "User":
-        return render_template("search_media.html", message = "Accessible by users only")
+        #return render_template("search_media.html", message = "Accessible by users only")
+        return redirect(url_for('search_media'))
     if request.method == "POST":
         media_id = request.form["media_id"]
+        #reads destination sent by form (subscribed from search pg or details pg)
+        next_page = request.form.get('next', url_for('search_media')) 
 
     # adding subscribed media onto users subscriptions
         connection = sqlite3.connect("subscription.db")
@@ -298,8 +344,10 @@ def add_subscription():
             message = "Already Subscribed"
         all_media=connection.execute("SELECT * FROM media_details").fetchall()
         connection.close()
-        return render_template("search_media.html", all_media=all_media, message=message)
-    return render_template("search_media.html")
+        return redirect(next_page)
+    return redirect(url_for('search_media'))
+        #return render_template("search_media.html", all_media=all_media, message=message)
+    #return render_template("search_media.html")
 
 @app.route('/mysubscriptions', methods=['GET','POST'])
 def my_subscriptions():

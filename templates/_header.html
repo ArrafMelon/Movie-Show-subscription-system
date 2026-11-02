@@ -1,0 +1,31 @@
+<header class="header">
+    <div>
+        <a href="/" class="brandlink">
+            <img src="{{ url_for('static', filename='images/streamax-logo.png')}}"
+                alt="STREAMAX logo" class="logo">
+            <h1 class="brandname">STREAMA<span class="brand-x">X</span></h1>
+        </a>
+        <div class="tagline">Sit Back. Stream More.</div>
+    </div>
+            
+    <nav class="nav">
+        {% if session.name %}
+            <a href="/searchmedia">Explore</a>
+
+            {% if session.account_type =="User"%}
+                <a href="/mysubscriptions">My Subscriptions</a>
+                <a href="/yourdashboard">Dashboard</a>
+            {% endif %}
+
+            {% if session.account_type =="Admin"%}
+                <a href="/addmedia">Add Media</a><br>
+            {% endif %}
+                        
+            <a href="/accmgmt">Account</a>
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        {% endif %}
+    </nav>
+</header>
