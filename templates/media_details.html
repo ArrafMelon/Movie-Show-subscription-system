@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{media[1]}} | STREAMAX</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid px-4 px-lg-5 py-4">
+        {% include '_header.html' %}
+        <main class='media-details-pg mt-4'>
+            <div class='media-feature' style="background-image: linear-gradient(
+                to right, 
+                rgba(23,18,32,0.98) 0%, rgba(23,18,32,0.88) 38%, rgba(23,18,32,0.35) 75%, rgba(23,18,32,0.15) 100%
+                ), url('{{url_for('static', filename='images/'+media[4])}}');">
+                <div class='media-feature-content'>
+                    <span class='media-type'> {{media[3]}}</span>
+                    <h1> {{media[1]}}</h1>
+                    <div class='media-details-genre'>{{ media[5] }}</div>
+                    <p class='media-desc'>{{ media[2] }}</p>
+                    <div class='media-meta'>
+                        {% if media[3] == 'Show' %}
+                            <span>{{media[7]}} seasons</span>
+                            <span>{{media[8]}} episodes per season</span>
+                            <span>{{media[6]}}-minute per episode</span>
+                        {% else %}
+                            <span>{{media[6]}} minutes</span>
+                        {% endif %}
+                    </div>
+                    <div class='media-actions'>
+                        {% if session.account_type=="User" %}
+                            {% if is_subscribed %}
+                                <button class='btn subscribe-btn' disabled>Subscribed</button>
+                            {% else %}
+                                <form method="POST" action="/subscribe">
+                                    <input type="hidden" name="media_id" value="{{ media[0] }}">
+                                    <input type="hidden" name="next" value="{{ url_for('media_details', media_id=media[0]) }}">
+                                    <button type="submit" class="btn subscribe-btn">Subscribe</button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+
+                        <a href="/searchmedia" class='btn explore-btn'>Back to Explore</a>
+                    </div>
+                     
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,75 +1,117 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Search for Movies or Shows</title>
+    <title>Explore | STREAMAX</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 </head>
 <body>
-    <div class = "page-content">
-    <h1>Search Media</h1>
-    <p>{{message}}</p>
-    
-    <form method="GET" style="flex-direction: row; justify-content: center;">
+    <div class="container-fluid px-4 px-lg-5 py-4">
+        {% include '_header.html' %}
+        <main class='explore-pg mx-auto mt-5'>
+            <div class="explore-heading">
+                <span class="admin-label">SEARCH NOW</span>
+            </div>
 
-    <div class="topnav">
-    <input type="text" name="search" placeholder="Search..">
-    </div>
+            <form method="GET" class="explore-search-form">
+            
+                <div class="explore-search">
+                    <span class="material-symbols-outlined">search</span>
+                    <input type="text" name="search" placeholder="Search.."
+                        value="{{request.args.get('search', '')}}">
+                </div>
 
-        <select name="genre">
-            <option value="">Show all</option>
-            <option value="Action">Action</option>
-            <option value="Comedy">Comedy</option>
-            <option value="Horror">Horror</option>
-            <option value="Sci-fi">Sci-fi</option>
-            <option value="Romance">Romance</option>
-            <option value="Mature">Mature</option>
-        </select><br><br>
+                <div class='explore-filters'>
+                    <select name="genre" class='form-select'>
+                        <option value="">All Genres</option>
+                        {% for genre_option in ['Action', 'Adventure',
+                            'Animation', 'Comedy', 'Crime',
+                            'Drama', 'Family', 'Fantasy', 'Horror',
+                            'Romance', 'Sci-fi', 'Thriller', 'Musical',
+                            'Mystery', 'Others'] %}
+                            <option value="{{genre_option }}"                                     
+                            {% if request.args.get('genre') == genre_option %}
+                                selected{% endif %}>
+                                {{genre_option}}
+                            </option>
+                        {% endfor %}
+                    </select>
+                
+                    <select name="media_type"class='form-select'>
+                        <option value="">All Types</option>
+                        <option value="Show" {% if request.args.get('media_type') == 'Show' %}
+                            selected{% endif %}>TV Show
+                        </option>
+                        <option value="Movie" {% if request.args.get('media_type') == 'Movie' %}
+                            selected{% endif %}>Movie
+                        </option>
+                    </select>
+            
+                    <button type="submit" class="btn explore-filter-btn">Apply Filters</button>
+                </div>
+            </form>
 
-        <select name="media_type">
-            <option value="">Show all</option>
-            <option value="Show">Show</option>
-            <option value="Movie">Movie</option>
-        </select><br><br>
+            {% if message %}
+                <p class="explore-msg">{{message}}</p>
+            {% endif %}
 
-        <button type="submit">Apply Filters</button>
-    </form>
+            <div class="explore-results-heading">
+                <h3>Discover Titles</h3>
+            </div>
 
-    <style>
-        .bounding-box {
-            border: 2px solid #a56de4;
-            padding: 10px;
-        }
-    </style>
-   {% for media in all_media %}
-        <div class="bounding-box">
-        <img src="{{ url_for('static',filename='images/' + media[4])}}", width="225">
-        <br>
-        {{ "Name: " + media[1] }}<br>
-        {{ "Description: " + media[2] }}<br>
-        {{ "Media Type: " + media[3] }}<br>
-        {{ "Genre: " + media[5] }}<br><br>
+            <div class='row g-4 explore-grid'>
+                {% for media in all_media %}
+                    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                        <div class='explore-card'>
+                            <a href="{{url_for('media_details', media_id=media[0])}}" class="explore-poster-link">
+                                <img src="{{ url_for('static',filename='images/' + media[4])}}" 
+                                    alt="{{media[1]}}" class="explore-poster">
 
-        {% if media[3] == 'Show' %}
-        {{ "Seasons: " ~ media[7] }}<br>
-        {{ "Episodes: " ~ media[8] }}<br>
-        {{ "Episode length (minutes): " ~ media[6] }}<br>
+                                <span class='poster-type'>{{media[3]}}</span>
+                            </a>
 
-        {% else %}
-        {{ "Movie length (minutes): " ~ media[6] }}<br>
-        {% endif %}
-        {% if session.account_type == "User" %}
-        <form method="POST" action="/subscribe">
-        <input type="hidden" name="media_id" value="{{ media[0] }}">
-        <button type="submit">Subscribe</button>
-        </form>
-        {% endif %}
-        </div>
-   {% else %}
-        <p>No Media Available yet</p>
-   {% endfor %}
+                            <div class="explore-card-info">
+                                
+                                <a href="{{url_for('media_details', media_id=media[0])}}" class='explore-title'>
+                                    {{media[1]}}
+                                </a>
 
-    <a href="/">Back to Home</a>
-    </div>
+                                <p class="explore-genre">{{media[5]}}</p>
+                                <p class="explore-desc">{{media[2]}}</p>
+
+                                {% if session.account_type == "User" %}
+                                    {% if media[0] in subscribed_ids %}
+                                    <button class='btn explore-subscribed-btn w-100' disabled>
+                                        <span class='material-symbols-outlined'>check_circle</span>Subscribed
+                                    </button>
+
+                                    {% else %}
+                                        <form method="POST" action='/subscribe'>
+                                            <input type="hidden" name="media_id" value="{{ media[0] }}">
+                                            <input type="hidden" name="next" value="{{ url_for('search_media') }}">
+                                            <button type="submit" class='btn explore-subscribe-btn w-100'>Subscribe</button>
+                                        </form>
+                                    {% endif %}
+                                {% endif %}
+
+                                </div>
+                            </div>
+                        </div>
+
+                    {% else %}
+                        <div class="col-12">
+                            <div class="explore-empty">  
+                                <span class="material-symbols-outlined">movie</span>
+                                <h4>No titles found</h4>
+                                <p>Try another search or adjust your filters.</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </main>
+        </div> 
 </body>
 </html>

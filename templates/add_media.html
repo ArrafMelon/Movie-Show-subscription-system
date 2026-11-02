@@ -1,55 +1,172 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add a Show or Movie (Admin use only)</title>
+    <title>Add Media | STREAMAX</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class = "page-content">
-    <h1>Add Media</h1>
+    <div class="container-fluid min-vh-100 px-4 px-lg-5 py-4">
+        {% include '_header.html' %}
+        <main class='add-media-pg mx-auto mt-5'>
 
-    <p>{{ message }}</p>
+            <div class='add-media-heading'>
+                <span class='admin-label'>ADMINISTRATION</span>
+                <h2>Add New Media</h2>
+            </div>
 
-    <form method="POST" enctype="multipart/form-data">
-        <label>Media Name</label><br>
-        <input type="text" name="media_name"><br><br>
+            <div class='add-media-card'>
+                <p class='form-message'>{{message}}</p>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    <div class='mb-4'>
+                        <label class='form-label'>Media Name</label>
+                        <input type="text" name="media_name" class='form-control'
+                            placeholder="Enter movie or TV show title" required>
+                    </div>
 
-        <label>Description</label><br>
-        <input type="text" name="description"><br><br>
+                    <div class='mb-4'>
+                        <label class='form-label'>Description</label>
+                        <textarea name="description" class='form-control' rows='4'
+                            placeholder="Write a short description..." required></textarea>
+                    </div>
 
-        <label>Media type</label><br>
-        <select name="media_type">
-            <option value="Show">Show</option>
-            <option value="Movie">Movie</option>
-        </select><br><br>
+                    <div class='row g-3 mb-4'>
 
-        <label>Number of seasons (leave blank if media is movie)</label><br>
-        <input type="text" name="num_seasons_show"><br><br>
-        <label>Number of Episodes per season (leave blank if media is movie)</label><br>
-        <input type="text" name="num_episodes_per_season_show"><br><br>
-        <label>Length in minutes (for shows, minutes per episode)</label><br>
-        <input type="number" name="length_minutes"><br><br>
+                        <div class='col-12 col-md-6'>
+                            <label class='form-label'>Media type (TV Show or Movie)</label>
+                            <select name="media_type" class='form-select' required>
+                                <option value="Show">TV Show</option>
+                                <option value="Movie">Movie</option>
+                             </select>
+                        </div>
 
-        
+                        <div class='col-12 col-md-6'>
+                            <label class='form-label'>Length (in minutes)</label>
+                            <input type="number" name="length_minutes" class='form-control'
+                                placeholder="For shows, enter minutes per episode" required>
+                        </div>
 
-        <label>Genre</label><br>
-        <select name="genre">
-            <option value="Action">Action</option>
-            <option value="Comedy">Comedy</option>
-            <option value="Horror">Horror</option>
-            <option value="Sci-fi">Sci-fi</option>
-            <option value="Romance">Romance</option>
-            <option value="Mature">Mature</option>
-        </select><br><br>
+                    </div>
 
-        <label>Add Image</label><br>
-        <input type="file" name="image_file_name" accept="image/*"><br><br>
+                    <div class='mb-4'>
+                        <label class='form-label'>Genre (Select all that apply)</label>
+                        <div class='genre-options'>
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Action" id='action'>
+                                <label class='form-check-label' for='action'>Action</label>
+                            </div>
 
-        <button type="submit">Add Media</button>
-    </form>
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Adventure"id='adventure'>
+                                <label class='form-check-label' for='adventure'>Adventure</label>
+                            </div>
 
-    <a href="/">Back to Home</a>
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Animation" id='animation'>
+                                <label class='form-check-label' for='animation'>Animation</label>
+                            </div>
+
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Comedy" id='comedy'>
+                                <label class='form-check-label' for='comedy'>Comedy</label>
+                            </div>
+
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Crime" id='crime'>
+                                <label class='form-check-label' for='crime'>Crime</label>
+                            </div>
+
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Drama" id='drama'>
+                                <label class='form-check-label' for='drama'>Drama</label>
+                            </div>
+
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Family" id='family'>
+                                <label class='form-check-label' for='family'>Family</label>
+                            </div>
+
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Fantasy" id='fantasy'>
+                                <label class='form-check-label' for='fantasy'>Fantasy</label>
+                            </div>
+
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Horror" id='horror'>
+                                <label class='form-check-label' for='horror'>Horror</label>
+                            </div>
+
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Musical" id='musical'>
+                                <label class='form-check-label' for='musical'>Musical</label>
+                            </div>
+
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Mystery" id='mystery'>
+                                <label class='form-check-label' for='mystery'>Mystery</label>
+                            </div>
+
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Romance" id='romance'>
+                                <label class='form-check-label' for='romance'>Romance</label>
+                            </div>
+
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Sci-fi" id='sci-fi'>
+                                <label class='form-check-label' for='sci-fi'>Sci-fi</label>
+                            </div>
+
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Thriller" id='thriller'>
+                                <label class='form-check-label' for='thriller'>Thriller</label>
+                            </div>
+
+                            <div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Others"id='others'>
+                                <label class='form-check-label' for='others'>Others</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="media-show-fields mb-4">
+                        <h5>TV Show Information</h5>
+                        <p>Leave these fields blank if adding a movie.</p>
+
+                        <div class='row g-3'>
+                            <div class='col-12 col-md-6'>
+                                <label class='form-label'>Number of Seasons</label>
+                                <input type='number' name='num_seasons_show' 
+                                    class='form-control' placeholder="e.g. 3">
+                            </div>
+
+                            <div class='col-12 col-md-6'>
+                                <label class='form-label'>Episodes per Season</label>
+                                <input type='number' name='num_episodes_per_season_show' 
+                                    class='form-control' placeholder="e.g. 10">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class='mb-4'>
+                        <label class='form-label'>Add Media Image</label>
+                        <div class='file-upload'>
+                            <input type="file" name="image_file_name" class='form-control'
+                                accept="image/*" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class='btn add-media-btn w-100'>Add to Library</button>
+                </form>
+            </div>
+
+            <div class='text-center mt-4'>
+                <a href="/" class='back-home'>Back to Home</a>
+            </div>
+        </main>
     </div>
 </body>
 </html>
+
