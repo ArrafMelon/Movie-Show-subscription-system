@@ -3,7 +3,7 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from flask import session
-from flask import redirect, url_for
+from flask import redirect, url_for, flash
 
 # Create the DB file
 connection = sqlite3.connect("subscription.db")
@@ -35,10 +35,10 @@ connection.execute("""
 """)
 
 
-# Table to store subscriptions per user
+# Table to store watchlist per user
 connection.execute("""
-    CREATE TABLE IF NOT EXISTS user_subscriptions(
-    subscription_id INTEGER PRIMARY KEY,
+    CREATE TABLE IF NOT EXISTS user_watchlist(
+    watchlist_id INTEGER PRIMARY KEY,
     user_id INTEGER NOT NULL,
     media_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user_details(id),
@@ -166,8 +166,9 @@ def change_name():
         connection.commit()
         connection.close()
         session["name"] = newname
-
-        return render_template("namechange.html", message="Name changed successfully!")
+        
+        return redirect(url_for("change_name", changed=1))
+        #return render_template("namechange.html", message="Name changed successfully!")
     return render_template("namechange.html")
 
 @app.route('/pwdchange', methods=['GET', 'POST'])
@@ -203,8 +204,8 @@ def change_password():
         connection.commit()
         connection.close()
         session["password"] = newpassword
-
-        return render_template("pwdchange.html", message="Password changed successfully!")
+        return redirect(url_for("change_password", changed=1))
+        #return render_template("pwdchange.html", message="Password changed successfully!")
     return render_template("pwdchange.html")
 
 @app.route('/addmedia', methods=['GET', 'POST'])
@@ -260,9 +261,9 @@ def add_media():
         return render_template("add_media.html", message="Successfully Added!")
     return render_template("add_media.html")
 
-@app.route('/searchmedia', methods=['GET', 'POST'])
+@app.route('/search_media', methods=['GET', 'POST'])
 def search_media():
-    # Users and admins being able to search media, filter, and users should be able to subscribe
+    # Users and admins being able to search media, filter, and users should be able to add to watchlist
     if request.method == "GET":
         genre = request.args.get("genre")
         media_type = request.args.get("media_type")
@@ -281,19 +282,18 @@ def search_media():
         else:
             all_media = connection.execute("SELECT * FROM media_details").fetchall()
 
-        #subscribed
-        subscribed_ids =[]
+        #already added to watchlist
+        watchlisted_ids =[]
         if session.get("account_type")=="User":
             user_id= session['id']
-            subscribed_ids = [
+            watchlisted_ids = [
                 row[0] for row in connection.execute(
-                    "SELECT media_id FROM user_subscriptions WHERE user_id=?", (user_id,)
+                    "SELECT media_id FROM user_watchlist WHERE user_id=?", (user_id,)
                 ).fetchall()
             ]
             
         connection.close()
-        return render_template("search_media.html", all_media=all_media, subscribed_ids=subscribed_ids)
-
+        return render_template("search_media.html", all_media=all_media, watchlisted_ids=watchlisted_ids)
     return render_template("search_media.html")
 
 @app.route('/media/<int:media_id>')
@@ -304,85 +304,86 @@ def media_details(media_id):
         "SELECT * FROM media_details WHERE media_id = ?", (media_id,)
     ).fetchone()
     
-    is_subscribed=False
+    is_watchlisted=False
     if "id" in session and session.get("account_type") == "User":
         result= connection.execute(
-            "SELECT * FROM user_subscriptions WHERE user_id=? AND media_id=?",
+            "SELECT * FROM user_watchlist WHERE user_id=? AND media_id=?",
             (session["id"], media_id)
         ).fetchone()
         
-        if result: is_subscribed=True
+        if result: is_watchlisted=True
     
     connection.close()
     
     if media is None: return "Media not found", 404
     
-    return render_template("media_details.html", media=media, is_subscribed=is_subscribed)
+    return render_template("media_details.html", media=media, is_watchlisted=is_watchlisted)
 
-@app.route('/subscribe', methods=['GET', 'POST'])
-def add_subscription():
+@app.route('/watchlist', methods=['GET', 'POST'])
+def add_watchlist():
     """
-    When a user clicks on the subscribe button in search media tab, their subscription
-    should store automatically in the my subscriptions list
+    When a user clicks on the 'add to watchlist' button in search media tab, their watchlist
+    should store automatically in the my_watchlist list
     """
-    # Note that only regular users should be able to subscribe, not admiins
+    # Note that only regular users should be able to add watchlist, not admiins
     if session.get("account_type") != "User":
         #return render_template("search_media.html", message = "Accessible by users only")
         return redirect(url_for('search_media'))
     if request.method == "POST":
         media_id = request.form["media_id"]
-        #reads destination sent by form (subscribed from search pg or details pg)
+        #reads destination sent by form (watchlisted from search pg or details pg)
         next_page = request.form.get('next', url_for('search_media')) 
 
-    # adding subscribed media onto users subscriptions
+    # adding watchlisted media onto users watchlist
         connection = sqlite3.connect("subscription.db")
         try:
-            connection.execute("INSERT INTO user_subscriptions (user_id, media_id) VALUES (?,?)",(session["id"],media_id))
+            connection.execute("INSERT INTO user_watchlist (user_id, media_id) VALUES (?,?)",(session["id"],media_id))
             connection.commit()
-            message="Subscribed :)"
+            message="Added to watchlist :)"
         except sqlite3.IntegrityError:
-            message = "Already Subscribed"
+            message = "Already in your Watchlist"
         all_media=connection.execute("SELECT * FROM media_details").fetchall()
         connection.close()
-        return redirect(next_page)
+        return redirect(next_page + ('&' if "?" in next_page else '?')+"added=1")
     return redirect(url_for('search_media'))
         #return render_template("search_media.html", all_media=all_media, message=message)
     #return render_template("search_media.html")
 
-@app.route('/mysubscriptions', methods=['GET','POST'])
-def my_subscriptions():
-    # subscriptions page for users to see their subscriptions
+@app.route('/mywatchlist', methods=['GET','POST'])
+def my_watchlist():
+    # watchlist page for users to see their watchlist
     if "email" not in session:
         return render_template("login.html", message = "Log into account first")
     if request.method == "GET":
         user_id = session["id"]
 
         connection = sqlite3.connect("subscription.db")
-        all_media = connection.execute("SELECT media_details.* FROM user_subscriptions JOIN media_details ON user_subscriptions.media_id=media_details.media_id WHERE user_subscriptions.user_id=?",
+        all_media = connection.execute("SELECT media_details.* FROM user_watchlist JOIN media_details ON user_watchlist.media_id=media_details.media_id WHERE user_watchlist.user_id=?",
                                    (user_id,)).fetchall()
         connection.close()
-        return render_template("mysubscriptions.html", all_media=all_media)
-    return render_template("mysubscriptions.html")
+        return render_template("mywatchlist.html", all_media=all_media)
+    return render_template("mywatchlist.html")
 
-@app.route('/unsubscribe', methods=['GET','POST'])
-def unsubscribe():
-    # removed show off of your subscriptions page
+@app.route('/remove-watchlist', methods=['GET','POST'])
+def remove_watchlist():
+    # removed show off of your watchlist page
     if request.method == "POST":
         media_id = request.form["media_id"]
         user_id = session["id"]
 
-    # adding subscribed media onto users subscriptions
+    # adding watchlisted media onto users watchlist
         connection = sqlite3.connect("subscription.db")
         
-        connection.execute("DELETE FROM user_subscriptions WHERE user_id=? and media_id=?",
+        connection.execute("DELETE FROM user_watchlist WHERE user_id=? and media_id=?",
                            (session["id"],media_id))
         connection.commit()
-        message="Unsubscribed"
-        all_media = connection.execute("SELECT media_details.* FROM user_subscriptions JOIN media_details ON user_subscriptions.media_id=media_details.media_id WHERE user_subscriptions.user_id=?",
+        #message="Removed from your watchlist"
+        
+        all_media = connection.execute("SELECT media_details.* FROM user_watchlist JOIN media_details ON user_watchlist.media_id=media_details.media_id WHERE user_watchlist.user_id=?",
                                            (user_id,)).fetchall()
         connection.close()
-        return render_template("mysubscriptions.html", all_media=all_media, message=message)
-    return render_template("mysubscriptions.html")
+        return redirect(url_for("my_watchlist", removed=1))
+    return render_template("mywatchlist.html")
 
     
 

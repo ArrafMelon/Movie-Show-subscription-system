@@ -1,39 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Subscriptions | STREAMAX</title>
+    <title>My Watchlist | STREAMAX</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
     <div class="container-fluid min-vh-100 px-4 px-lg-5 py-4">
         {% include '_header.html' %}
        
-        <main class='subscriptions-pg mt-5'>
+        <main class='watchlist-pg mt-5'>
             <div class = "text-center mb-5">
-                <h2>My Subscriptions</h2>
+                <h2>My Watchlist</h2>
             </div>
-            <p class='text-center form-message'>{{message}}</p>
+
+            {% if request.args.get('removed')=='1' %}
+                <div class='toast-container position-fixed top-0 end-0 p-3'>
+                    <div id='removeToast' class='toast streamax-toast' role='alert'>
+                        <div class='toast-body'>
+                            <span class='toast-icon'>✓</span>Removed from your watchlist.
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
             
             <div class='row g-4'>
                 {% for media in all_media %}
                     <div class="col-12 col-lg-6">
-                        <div class='subscription-card'>
+                        <div class='watchlist-card'>
                             <div class='row g-0 align-items-stretch'>
                                 <div class='col-12 col-sm-5 d-flex align-items-center justify-content-center p-2'>
                                     <a href="{{url_for('media_details', media_id=media[0])}}">
                                         <img src="{{ url_for('static',filename='images/' + media[4])}}" 
-                                            alt="{{media[1]}}" class="subscription-img">
+                                            alt="{{media[1]}}" class="watchlist-img">
                                     </a>
                                 </div>
 
                                 <div class='col-12 col-sm-7'>
                         
-                                    <div class='subscription-info h-100 d-flex flex-column'>
+                                    <div class='watchlist-info h-100 d-flex flex-column'>
                                         <div>
-                                            <h4><a href="{{url_for('media_details', media_id=media[0])}}" class='subscription-title-link'>
+                                            <h4><a href="{{url_for('media_details', media_id=media[0])}}" class='watchlist-title-link'>
                                                 {{media[1]}}
                                             </a></h4>
 
@@ -52,9 +63,9 @@
 
                         
 
-                                        <form method="POST" action="/unsubscribe">
+                                        <form method="POST" action="/remove-watchlist">
                                             <input type="hidden" name="media_id" value="{{ media[0] }}">
-                                            <button type="submit" class='btn btn-danger w-100 mt-3'>Unsubscribe</button>
+                                            <button type="submit" class='btn btn-danger w-100 mt-3'>Remove to Watchlist</button>
                                         </form>
                                     </div>
                                 </div>
@@ -62,14 +73,27 @@
                         </div>
                     </div>
                 {% else %}
-                    <div class="col-12 text-center">
-                        <p class='empty-subs'>No Subscriptions yet</p>
-                        <a href='/searchmedia' class='btn home-button mt-3'>Explore Movies & Shows</a>
+                    <div class="col-12">
+                        <div class="explore-empty">  
+                            <span class="material-symbols-outlined">movie</span>
+                            <h4>Empty Watchlist</h4>
+                            <a href='/search_media' class='btn home-button mt-3'>Explore Movies & Shows</a>
+                        </div>
+                    
                     </div>
                 {% endfor %}
             </div>
         </main>
     </div>
+
+    <script>
+        const toastElem = document.getElementById('removeToast');
+        if (toastElem) {
+            const toast = new bootstrap.Toast(toastElem, {delay:2000});
+            toast.show();
+        }
+    </script>
+
 </body>
 </html>
 
