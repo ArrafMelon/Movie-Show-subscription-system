@@ -45,16 +45,16 @@
 }
 
 @media (max-width:575px) {
-    .subscription-img {
+    .watchlist-img {
         height: 200px;
         min-height: auto;
         height:270px;
     }
 
-    .subscription-info {padding:14px;}
+    .watchlist-info {padding:14px;}
     .card-design {padding: 28px 20px;}
     .home-feature h1 { font-size: 42px;}
-    .subscription-info { padding: 20px;}
+    .watchlist-info { padding: 20px;}
     .genre-options {grid-template-columns: repeat(2, 1fr);}
     .explore-filters {flex-direction: column;}
 
@@ -269,7 +269,7 @@ a:hover {
 }
 
 .card-design h2,
-.subscriptions-pg h2,
+.watchlist-pg h2,
 .media-more-details strong { 
     color: var(--cream);
 }
@@ -387,8 +387,8 @@ a:hover {
 
 .account-form .form-control { width: 100%; }
 
-/* My Subscriptions */
-.subscription-card {
+/* My Watchlist */
+.watchlist-card {
     background: var(--bg-panel);
     border: 1px solid var(--border-color);
     border-radius: 14px;
@@ -397,12 +397,12 @@ a:hover {
     height: 100%;
 }
 
-.subscription-card:hover {
+.watchlist-card:hover {
     color: var(--lavender);
     transform: translateY(-3px);
 }
 
-.subscription-img {
+.watchlist-img {
     width: 100%;
     max-width: 230px;
     height: 310px;
@@ -412,13 +412,13 @@ a:hover {
     transition: transform .25s ease;
 }
 
-.subscription-title-link {
+.watchlist-title-link {
     color: var(--cream);
     text-decoration: none;
     transition: color 0.2s ease;
 }
 
-.subscription-title-link:hover {
+.watchlist-title-link:hover {
     color: var(--light-lavender);
 }
 
@@ -429,29 +429,29 @@ a:hover {
     display: block;
 }
 
-.subscription-info { 
+.watchlist-info { 
     padding: 14px; 
     gap:10px;
     height: 100%;
 }
 
-.subscription-info h4 {
+.watchlist-info h4 {
     color: var(--cream);
     font-weight: 700;
     font-size:20px;
     margin-bottom: 6px;
 }
 
-.subscription-info p {
+.watchlist-info p {
     font-size: 12px;
     margin-bottom: 7px;
     line-height:1.5;
     overflow-wrap: anywhere;
 }
 
-.subscription-info .mt-3 {  margin-top:10px !important;}
+.watchlist-info .mt-3 {  margin-top:10px !important;}
 
-.subscription-info form {margin-top: auto;}
+.watchlist-info form {margin-top: auto;}
 
 .media-type {
     display: inline-block;
@@ -465,11 +465,11 @@ a:hover {
 
 .media-genre { color: var(--muted); }
 
-.subscription-info strong {
+.watchlist-info strong {
     color: var(--cream);
 }
 
-.subscription-info .btn-danger {
+.watchlist-info .btn-danger {
     background: transparent;
     border: 1px solid var(--rose);
     color: var(--rose);
@@ -478,14 +478,9 @@ a:hover {
     padding: 10px 18px;
 }
 
-.subscription-info .btn-danger:hover {
+.watchlist-info .btn-danger:hover {
     background: var(--rose);
     color: var(--bg-main);
-}
-
-.empty-subs {
-    color: var(--muted);
-    padding: 30px 0;
 }
 
 /* Media Details */
@@ -562,7 +557,7 @@ a:hover {
     gap:0;
 }
 
-.media-feature-content .subscribe-btn,
+.media-feature-content .watchlist-btn,
 .add-media-btn {
     background-color: var(--purple);
     border-color: var(--purple);
@@ -572,14 +567,14 @@ a:hover {
     border-radius: 8px;
 }
 
-.media-feature-content .subscribe-btn:hover,
+.media-feature-content .watchlist-btn:hover,
 .add-media-btn:hover {
     background: var(--purple-hover);
     border-color: var(--purple-hover);
     color: white;
 }
 
-.media-feature-content .subscribe-btn:disabled {
+.media-feature-content .watchlist-btn:disabled {
     background: var(--bg-panel);
     border: 1px solid var(--lavender);
     color: var(--lavender);
@@ -770,7 +765,7 @@ a:hover {
 }
 
 .explore-filter-btn,
-.explore-subscribe-btn {
+.explore-watchlist-btn {
     background: var(--purple);
     border: 1px solid var(--purple);
     color: white;
@@ -781,13 +776,13 @@ a:hover {
 }
 
 .explore-filter-btn:hover,
-.explore-subscribe-btn:hover {
+.explore-watchlist-btn:hover {
     background: var(--purple-hover);
     background-color: var(--purple-hover);
     color: white;
 }
 
-.explore-subscribed-btn {
+.explore-watchlisted-btn {
     background: var(--bg-main);
     border: 1px solid var(--lavender);
     color: var(--lavender);
@@ -802,7 +797,7 @@ a:hover {
     gap: 6px;
 }
 
-.explore-subscribed-btn:disabled {
+.explore-watchlisted-btn:disabled {
     background: var(--bg-main);
     border-color: var(--lavender);
     color: var(--lavender);
@@ -848,7 +843,7 @@ a:hover {
 }
 
 .explore-card:hover .explore-poster,
-.subscription-img:hover {
+.watchlist-img:hover {
     transform: scale(1.04);
 }
 
@@ -893,14 +888,9 @@ a:hover {
     overflow: hidden;
 }
 
-.explore-subscribe-btn {
+.explore-watchlist-btn {
     padding:8px;
     font-size:12px;
-}
-
-.explore-msg{
-    color: var(--lavender);
-    margin-bottom:20px;
 }
 
 /* no results */
@@ -926,4 +916,26 @@ a:hover {
 .explore-empty p {
     font-size:13px;
     margin:8px 0 0;
+}
+
+/* Toast Notifs */
+.streamax-toast {
+    width: 290px;
+    max-width: 90vw;
+    background-color: #1c1c2b;
+    color: white;
+    border: 1px solid #7c4dff;
+    border-left: 5px solid #7c4dff;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,.35);
+}
+
+.streamax-toast .toast-body {
+    padding: 16px 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap:12px;
 }

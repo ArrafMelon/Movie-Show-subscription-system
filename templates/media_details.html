@@ -6,10 +6,22 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
     <div class="container-fluid px-4 px-lg-5 py-4">
         {% include '_header.html' %}
+
+        {% if request.args.get('added')=='1' %}
+            <div class='toast-container position-fixed top-0 end-0 p-3'>
+                <div id='addToast' class='toast streamax-toast' role='alert'>
+                    <div class='toast-body'>
+                        <span class='toast-icon'>✓</span>Added to Watchlist.
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
         <main class='media-details-pg mt-4'>
             <div class='media-feature' style="background-image: linear-gradient(
                 to right, 
@@ -31,23 +43,32 @@
                     </div>
                     <div class='media-actions'>
                         {% if session.account_type=="User" %}
-                            {% if is_subscribed %}
-                                <button class='btn subscribe-btn' disabled>Subscribed</button>
+                            {% if is_watchlisted %}
+                                <button class='btn watchlist-btn' disabled>Added to Watchlist</button>
                             {% else %}
-                                <form method="POST" action="/subscribe">
+                                <form method="POST" action="/watchlist">
                                     <input type="hidden" name="media_id" value="{{ media[0] }}">
                                     <input type="hidden" name="next" value="{{ url_for('media_details', media_id=media[0]) }}">
-                                    <button type="submit" class="btn subscribe-btn">Subscribe</button>
+                                    <button type="submit" class="btn watchlist-btn">Add to Watchlist</button>
                                 </form>
                             {% endif %}
                         {% endif %}
 
-                        <a href="/searchmedia" class='btn explore-btn'>Back to Explore</a>
+                        <a href="/search_media" class='btn explore-btn'>Back to Explore</a>
                     </div>
                      
                 </div>
             </div>
         </main>
     </div>
+
+    <script>
+        const toastElem = document.getElementById('addToast');
+        if (toastElem) {
+            const toast = new bootstrap.Toast(toastElem, {delay:2000});
+            toast.show();
+        }
+    </script>
+
 </body>
 </html>

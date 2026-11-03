@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
     <div class="container-fluid px-4 px-lg-5 py-4">
@@ -15,6 +16,16 @@
             <div class="explore-heading">
                 <span class="admin-label">SEARCH NOW</span>
             </div>
+
+            {% if request.args.get('added')=='1' %}
+                <div class='toast-container position-fixed top-0 end-0 p-3'>
+                    <div id='addToast' class='toast streamax-toast' role='alert'>
+                        <div class='toast-body'>
+                            <span class='toast-icon'>✓</span>Added to Watchlist.
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
 
             <form method="GET" class="explore-search-form">
             
@@ -54,10 +65,6 @@
                 </div>
             </form>
 
-            {% if message %}
-                <p class="explore-msg">{{message}}</p>
-            {% endif %}
-
             <div class="explore-results-heading">
                 <h3>Discover Titles</h3>
             </div>
@@ -83,16 +90,16 @@
                                 <p class="explore-desc">{{media[2]}}</p>
 
                                 {% if session.account_type == "User" %}
-                                    {% if media[0] in subscribed_ids %}
-                                    <button class='btn explore-subscribed-btn w-100' disabled>
-                                        <span class='material-symbols-outlined'>check_circle</span>Subscribed
+                                    {% if media[0] in watchlisted_ids %}
+                                    <button class='btn explore-watchlisted-btn w-100' disabled>
+                                        <span class='material-symbols-outlined'>check_circle</span>Added to your Watchlist
                                     </button>
 
                                     {% else %}
-                                        <form method="POST" action='/subscribe'>
+                                        <form method="POST" action='/watchlist'>
                                             <input type="hidden" name="media_id" value="{{ media[0] }}">
                                             <input type="hidden" name="next" value="{{ url_for('search_media') }}">
-                                            <button type="submit" class='btn explore-subscribe-btn w-100'>Subscribe</button>
+                                            <button type="submit" class='btn explore-watchlist-btn w-100'>Add to Watchlist</button>
                                         </form>
                                     {% endif %}
                                 {% endif %}
@@ -113,5 +120,13 @@
                 </div>
             </main>
         </div> 
+
+        <script>
+            const toastElem = document.getElementById('addToast');
+            if (toastElem) {
+                const toast = new bootstrap.Toast(toastElem, {delay:2000});
+                toast.show();
+            }
+        </script>
 </body>
 </html>

@@ -10,10 +10,10 @@
             
     <nav class="nav">
         {% if session.name %}
-            <a href="/searchmedia">Explore</a>
+            <a href="/search_media">Explore</a>
 
             {% if session.account_type =="User"%}
-                <a href="/mysubscriptions">My Subscriptions</a>
+                <a href="/mywatchlist">My Watchlist</a>
                 <a href="/yourdashboard">Dashboard</a>
             {% endif %}
 
