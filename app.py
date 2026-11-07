@@ -9,13 +9,15 @@ from flask import redirect, url_for, flash
 connection = sqlite3.connect("subscription.db")
 
 # Creation of registration table (unique ID, name (First Last), unique email, password, account type (user or admin))
+# Subscription type also included for users only (0 default, no plan. 1, individual plan. 2, family plan)
 connection.execute("""
     CREATE TABLE IF NOT EXISTS user_details(
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    account_type TEXT NOT NULL
+    account_type TEXT NOT NULL,
+    subscription_type INTEGER NOT NULL DEFAULT 0 CHECK (subscription_type IN (0,1,2))
     )
 """)
 
@@ -117,6 +119,7 @@ def login():
         session["email"] = user[2]
         session["password"] = user[3]
         session["account_type"] = user[4]
+        session["subscription_type"] = user[5]
         #redirecting to dashboard after successful logiin
         return render_template("login.html", message="Successfully Logged in!", 
             redirect_after_login=True)
@@ -263,6 +266,9 @@ def add_media():
 
 @app.route('/search_media', methods=['GET', 'POST'])
 def search_media():
+    if session.get("account_type") == "User" and session.get("subscription_type") == 0:
+        return redirect(url_for("subscription_plan"))
+
     # Users and admins being able to search media, filter, and users should be able to add to watchlist
     if request.method == "GET":
         genre = request.args.get("genre")
@@ -385,9 +391,30 @@ def remove_watchlist():
         return redirect(url_for("my_watchlist", removed=1))
     return render_template("mywatchlist.html")
 
-    
+@app.route('/subscription_plan_user', methods=['GET','POST'])
+def subscription_plan():
+    # Users can select individual or family plan
+    if session.get("account_type") != "User":
+        return render_template("login.html",message="Plans for users only")
 
-        
+    if request.method=="POST":
+        subscription_type=int(request.form["subscription_type"])
+        card_number=request.form["card_number"].replace(" ","")
+        expiry = request.form["expiry"].replace("/","")
+        cvv = request.form["cvv"]
+
+        if not card_number.isdigit() or len(card_number) != 16 or not cvv.isdigit() or len(cvv) != 3 or not expiry.isdigit() or len(expiry)!=4:
+            return render_template("subscription_plans.html", message="Invalid Card Number!")
+
+        connection = sqlite3.connect("subscription.db")
+        connection.execute("UPDATE user_details SET subscription_type=? WHERE id=?",
+                            (subscription_type,session["id"]))
+        connection.commit()
+        connection.close()
+        session["subscription_type"]=subscription_type
+        return render_template("subscription_plans.html", message="Successfully changed subscription")
+    return render_template("subscription_plans.html")
+
 
 if __name__ == '__main__':
     app.run(debug=True)
