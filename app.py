@@ -57,6 +57,19 @@ connection.execute("""
     )
 """)
 
+# table to store complaints made by users (status 1 is unresolved, status 2 is resolved)
+connection.execute("""
+    CREATE TABLE IF NOT EXISTS contact_support(
+    complaint_id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    user_email TEXT NOT NULL,
+    user_complaint TEXT NOT NULL,
+    status INTEGER DEFAULT 1 CHECK (status IN (1,2)),
+    FOREIGN KEY (user_id) REFERENCES user_details(id),
+    FOREIGN KEY (user_email) REFERENCES user_details(email)
+    )
+""")
+
 # add default prices if subscription_details is empty(won't be overwritten by any other changes admin makes)
 connection.execute("INSERT OR IGNORE INTO subscription_details (subscription_type, subscription_price) VALUES (1, 7.99)")
 connection.execute("INSERT OR IGNORE INTO subscription_details (subscription_type, subscription_price) VALUES (2, 12.99)")
@@ -454,6 +467,26 @@ def cancel_subscription():
     connection.close()
     session["subscription_type"]=0
     return render_template("subscription_plans.html", message="Successfully cancelled subscription",sub_prices=sub_prices)
+
+@app.route('/user_support', methods=['GET','POST'])
+def contact_support():
+    if "email" not in session:
+        return render_template("login.html", message="Log into account")
+    # Allows user to submit a complaint to admins using db that stores complaints, user id, user email
+    if request.method=="POST":
+        user_complaint = request.form["user_complaint"]
+
+        if not user_complaint:
+            return render_template("contact_support.html", message="Complaint cannot be empty")
+        connection = sqlite3.connect("subscription.db")
+        connection.execute("INSERT INTO contact_support (user_id, user_email, user_complaint) VALUES (?, ?, ?)",
+                           (session["id"], session["email"], user_complaint))
+        connection.commit()
+        connection.close()
+        return render_template("contact_support.html", message="Complaint submitted")
+    return render_template("contact_support.html")
+        
+
 
 
 if __name__ == '__main__':
