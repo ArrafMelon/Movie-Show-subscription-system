@@ -25,22 +25,30 @@
         <div class='card-design w-100 mx-auto my-auto' style='max-width: 500px;'>
             <h2 class='mb-4 text-center'>Choose a Plan</h2>
             <p class='text-center form-message'>{{ message }}</p>
+            <p class ='text-center'>
+                Your current plan:
+                {% if session.subscription_type==1%}Student
+                {% elif session.subscription_type==2%}Individual
+                {% elif session.subscription_type==0%}No Plan
+                {% endif %}
+            </p>
 
             <form method="POST" action="/subscription_plan_user" class='account-form'>
                 <div class='mb-4 w-100'>
                     <label for='subscription_type' class='form-label'>Plan</label>
                     <select class='form-select' id='subscription_type' name="subscription_type">
-                        <option value="1" {% if session.subscription_type == 1 %}selected{% endif %}>Individual</option>
-                        <option value="2" {% if session.subscription_type == 2 %}selected{% endif %}>Family</option>
+                        <option value="1" {% if session.subscription_type == 1 %}selected{% endif %}>Student - ${{ sub_prices[1] }}</option>
+                        <option value="2" {% if session.subscription_type == 2 %}selected{% endif %}>Individual - ${{ sub_prices[2] }}</option>
                     </select>
                 </div>
 
                 <div class='mb-4 p-3 rounded-3 text-center' style='background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);'>
-                    <h5 class='mb-2'>Enter card information here</h5>
+                    <h5 class='mb-2'>Enter card and student information here</h5>
                     
                     <input type='text' class='form-control mb-2' name='card_number' placeholder='Card number'>
                     <input type='text' class='form-control mb-2' name='expiry' placeholder='MM/YY'>
-                    <input type='password' class='form-control' name='cvv' placeholder='CVV'>
+                    <input type='password' class='form-control' name='cvv' placeholder='CVV'><br><br>
+                    <input type='text' class='form-control mb-2' name='student_number' placeholder='Student number (student plan only)'>
 
                 </div>
 

@@ -9,7 +9,7 @@ from flask import redirect, url_for, flash
 connection = sqlite3.connect("subscription.db")
 
 # Creation of registration table (unique ID, name (First Last), unique email, password, account type (user or admin))
-# Subscription type also included for users only (0 default, no plan. 1, individual plan. 2, family plan)
+# Subscription type also included for users only (0 default, no plan. 1, student plan. 2, individual plan)
 connection.execute("""
     CREATE TABLE IF NOT EXISTS user_details(
     id INTEGER PRIMARY KEY,
@@ -36,7 +36,6 @@ connection.execute("""
     )
 """)
 
-
 # Table to store watchlist per user
 connection.execute("""
     CREATE TABLE IF NOT EXISTS user_watchlist(
@@ -48,6 +47,19 @@ connection.execute("""
     UNIQUE(user_id,media_id)
     )
 """)
+
+# Table to store subscription details (primarily for Admins to be able to change prices of plans)
+connection.execute("""
+    CREATE TABLE IF NOT EXISTS subscription_details(
+    subscription_id INTEGER PRIMARY KEY,
+    subscription_type INTEGER NOT NULL UNIQUE CHECK (subscription_type IN (1,2)),
+    subscription_price FLOAT NOT NULL
+    )
+""")
+
+# add default prices if subscription_details is empty(won't be overwritten by any other changes admin makes)
+connection.execute("INSERT OR IGNORE INTO subscription_details (subscription_type, subscription_price) VALUES (1, 7.99)")
+connection.execute("INSERT OR IGNORE INTO subscription_details (subscription_type, subscription_price) VALUES (2, 12.99)")
 
 connection.close()
 
@@ -393,18 +405,29 @@ def remove_watchlist():
 
 @app.route('/subscription_plan_user', methods=['GET','POST'])
 def subscription_plan():
-    # Users can select individual or family plan
+    # Users can select student or individual plan
     if session.get("account_type") != "User":
         return render_template("login.html",message="Plans for users only")
+
+    connection = sqlite3.connect("subscription.db")
+    # pull price details
+    sub_prices = dict(connection.execute("SELECT subscription_type, subscription_price FROM subscription_details").fetchall())
+    connection.close()
 
     if request.method=="POST":
         subscription_type=int(request.form["subscription_type"])
         card_number=request.form["card_number"].replace(" ","")
         expiry = request.form["expiry"].replace("/","")
         cvv = request.form["cvv"]
+        student_number = request.form["student_number"]
 
+        # checking student number (9 digit)
+        if subscription_type == 1 and (not student_number.isdigit() or len(student_number) != 9):
+            return render_template("subscription_plans.html", message="Invalid Student Number!",sub_prices=sub_prices)
+
+        # checking card details for plans (i.e if length, cvv, and date are valid numbner formats)
         if not card_number.isdigit() or len(card_number) != 16 or not cvv.isdigit() or len(cvv) != 3 or not expiry.isdigit() or len(expiry)!=4:
-            return render_template("subscription_plans.html", message="Invalid Card Number!")
+            return render_template("subscription_plans.html", message="Invalid Card Number!",sub_prices=sub_prices)
 
         connection = sqlite3.connect("subscription.db")
         connection.execute("UPDATE user_details SET subscription_type=? WHERE id=?",
@@ -412,8 +435,8 @@ def subscription_plan():
         connection.commit()
         connection.close()
         session["subscription_type"]=subscription_type
-        return render_template("subscription_plans.html", message="Successfully changed subscription")
-    return render_template("subscription_plans.html")
+        return render_template("subscription_plans.html", message="Successfully changed subscription",sub_prices=sub_prices)
+    return render_template("subscription_plans.html",sub_prices=sub_prices)
 
 
 if __name__ == '__main__':
