@@ -370,6 +370,9 @@ def add_watchlist():
 @app.route('/mywatchlist', methods=['GET','POST'])
 def my_watchlist():
     # watchlist page for users to see their watchlist
+    # redirect to subscription plans if user does not have a plan 
+    if session.get("account_type")=="User" and session.get("subscription_type")==0:
+        return redirect(url_for("subscription_plan"))
     if "email" not in session:
         return render_template("login.html", message = "Log into account first")
     if request.method == "GET":
@@ -437,6 +440,20 @@ def subscription_plan():
         session["subscription_type"]=subscription_type
         return render_template("subscription_plans.html", message="Successfully changed subscription",sub_prices=sub_prices)
     return render_template("subscription_plans.html",sub_prices=sub_prices)
+
+@app.route('/cancel_subscription', methods=['GET','POST'])
+# cancelling user subscription
+def cancel_subscription():
+    if session.get("account_type") != "User":
+        return render_template("login.html",message="Plans for users only")
+    connection = sqlite3.connect("subscription.db")
+    sub_prices = dict(connection.execute("SELECT subscription_type, subscription_price FROM subscription_details").fetchall())
+    connection.execute("UPDATE user_details SET subscription_type=0 WHERE id=?",
+                            (session["id"],))
+    connection.commit()
+    connection.close()
+    session["subscription_type"]=0
+    return render_template("subscription_plans.html", message="Successfully cancelled subscription",sub_prices=sub_prices)
 
 
 if __name__ == '__main__':

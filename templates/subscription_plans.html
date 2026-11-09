@@ -54,7 +54,11 @@
 
                 <button type="submit" class='btn btn-primary w-100'>Save Plan</button>
             </form>
-
+            {% if session.subscribe_type != 0%}
+            <form method="POST" action="/cancel_subscription" class="text-center mt-4">
+                <button type="submit" class="btn btn-link back-home text-danger">Cancel Subscription</button>
+            </form>
+            {% endif %}
             <div class='text-center mt-4'>
                 <a href="/" class='back-home'>Back to Home</a>
             </div>
