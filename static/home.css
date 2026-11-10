@@ -239,7 +239,7 @@ a:hover {
 }
 
 .home-button:hover {
-    background: var(--purple-hover)
+    background: var(--purple-hover);
     color: white;
     transform:translateY(-2px);
 }

@@ -23,10 +23,14 @@
         {% endif %}
 
         <main class='media-details-pg mt-4'>
-            <div class='media-feature' style="background-image: linear-gradient(
-                to right, 
-                rgba(23,18,32,0.98) 0%, rgba(23,18,32,0.88) 38%, rgba(23,18,32,0.35) 75%, rgba(23,18,32,0.15) 100%
-                ), url('{{url_for('static', filename='images/'+media[4])}}');">
+           <div class="media-feature"
+                style="background-image: linear-gradient( to right,
+                    rgba(23,18,32,0.98) 0%,
+                    rgba(23,18,32,0.88) 38%,
+                    rgba(23,18,32,0.35) 75%,
+                    rgba(23,18,32,0.15) 100%
+                    ), url(&quot;{{ url_for('static', filename='images/' + media[4]) }}&quot;);">
+                    
                 <div class='media-feature-content'>
                     <span class='media-type'> {{media[3]}}</span>
                     <h1> {{media[1]}}</h1>
