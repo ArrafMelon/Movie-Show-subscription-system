@@ -486,9 +486,137 @@ def contact_support():
         return render_template("contact_support.html", message="Complaint submitted")
     return render_template("contact_support.html")
         
+@app.route('/dashboard')
+def dashboard():
+    # sends users and admins to their own dashboard
+    if "email" not in session:
+        return render_template("login.html", message = "Log into account first")
+    if session["account_type"] == "Admin":
+        return redirect(url_for('admin_dashboard'))
+    return redirect(url_for('user_dashboard'))
 
+@app.route('/yourdashboard')
+def user_dashboard():
+    # Dashboard for regular users
+    if "email" not in session:
+        return render_template("login.html", message = "Log into account first")
+    
+    if session["account_type"] == "Admin":
+        return redirect(url_for('admin_dashboard'))
 
+    connection = sqlite3.connect("subscription.db")
 
+    # media the user is subscribed to (newest first)
+    my_media = connection.execute("SELECT media_details.* FROM user_watchlist JOIN media_details ON user_watchlist.media_id=media_details.media_id WHERE user_watchlist.user_id=? ORDER BY user_watchlist.watchlist_id DESC",
+                                  (session["id"],)).fetchall()
+
+    # media the user is not subscribed to yet
+    other_media = connection.execute("SELECT * FROM media_details WHERE media_id NOT IN (SELECT media_id FROM user_watchlist WHERE user_id=?)",
+                                     (session["id"],)).fetchall()
+    connection.close()
+
+    # counting movies, shows, watch time and genres
+    movies = 0
+    shows = 0
+    total_minutes = 0
+    genre_counts = {}
+
+    for media in my_media:
+        if media[3] == "Movie":
+            movies += 1
+            total_minutes += media[6]
+        else:
+            shows += 1
+            # shows: length x seasons x episodes per season
+            total_minutes += media[6] * media[7] * media[8]
+
+        for genre in media[5].split(", "):
+            genre_counts[genre] = genre_counts.get(genre, 0) + 1
+
+    watch_time = str(total_minutes // 60) + "h " + str(total_minutes % 60) + "m"
+
+    # top 5 genres, most subscribed first
+    top_genres = sorted(genre_counts.items(), key=lambda item: item[1], reverse=True)[:5]
+    max_genre_count = 1
+    if top_genres:
+        max_genre_count = top_genres[0][1]
+
+    # recommend media that has a genre the user already likes
+    recommended = []
+    for media in other_media:
+        for genre in media[5].split(", "):
+            if genre in genre_counts:
+                recommended.append(media)
+                break
+
+    heading = "Picked for you"
+    # new users have no genres yet so just show some media
+    if not recommended:
+        recommended = other_media
+        heading = "Explore something new"
+
+    return render_template("user_dashboard.html", total=len(my_media), movies=movies,
+                           shows=shows, watch_time=watch_time, recent=my_media[:5],
+                           top_genres=top_genres, max_genre_count=max_genre_count,
+                           recommended=recommended[:6], heading=heading)
+
+@app.route('/admindashboard')
+def admin_dashboard():
+    # Dashboard for admins
+    if "email" not in session:
+        return render_template("login.html", message = "Log into account first")
+    if session["account_type"] != "Admin":
+        return redirect(url_for('user_dashboard'))
+
+    connection = sqlite3.connect("subscription.db")
+
+    # all media with how many users subscribed to each one (most subscribed first)
+    all_media = connection.execute("SELECT media_details.*, COUNT(user_watchlist.watchlist_id) FROM media_details LEFT JOIN user_watchlist ON media_details.media_id=user_watchlist.media_id GROUP BY media_details.media_id ORDER BY COUNT(user_watchlist.watchlist_id) DESC").fetchall()
+
+    total_movies = connection.execute("SELECT COUNT(*) FROM media_details WHERE media_type='Movie'").fetchone()[0]
+    total_shows = connection.execute("SELECT COUNT(*) FROM media_details WHERE media_type='Show'").fetchone()[0]
+    total_users = connection.execute("SELECT COUNT(*) FROM user_details WHERE account_type='User'").fetchone()[0]
+    total_subs = connection.execute("SELECT COUNT(*) FROM user_watchlist").fetchone()[0]
+
+    # last 5 media added and last 5 people who registered (no passwords)
+    recent_media = connection.execute("SELECT * FROM media_details ORDER BY media_id DESC LIMIT 5").fetchall()
+    new_members = connection.execute("SELECT name, email, account_type FROM user_details ORDER BY id DESC LIMIT 5").fetchall()
+    connection.close()
+
+    # average subscriptions per user
+    avg_subs = 0
+    if total_users > 0:
+        avg_subs = round(total_subs / total_users, 1)
+
+    # most subscribed media (used for the bars)
+    top_subs = 1
+    if all_media and all_media[0][9] > 0:
+        top_subs = all_media[0][9]
+
+    # media that nobody has subscribed to
+    no_subs = []
+    for media in all_media:
+        if media[9] == 0:
+            no_subs.append(media)
+
+    # subscriptions per genre
+    genre_subs = {}
+    for media in all_media:
+        for genre in media[5].split(", "):
+            genre_subs[genre] = genre_subs.get(genre, 0) + media[9]
+
+    top_genres = sorted(genre_subs.items(), key=lambda item: item[1], reverse=True)[:6]
+    max_genre_subs = 1
+    if top_genres and top_genres[0][1] > 0:
+        max_genre_subs = top_genres[0][1]
+
+    return render_template("admin_dashboard.html", total_media=len(all_media),
+                           total_movies=total_movies, total_shows=total_shows,
+                           total_users=total_users, total_subs=total_subs, avg_subs=avg_subs,
+                           top_media=all_media[:5], top_subs=top_subs,
+                           top_genres=top_genres, max_genre_subs=max_genre_subs,
+                           recent_media=recent_media, no_subs=no_subs[:5],
+                           new_members=new_members)
 if __name__ == '__main__':
     app.run(debug=True)
 
