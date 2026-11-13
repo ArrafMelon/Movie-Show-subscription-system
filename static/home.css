@@ -993,6 +993,77 @@ a:hover {
     font-weight: 700;
 }
 
+/* Subscription page */
+.plan-option {
+    position: relative;
+    display: block;
+    height: 100%;
+    padding: 20px;
+    padding-right: 45px;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    background: var(--bg-panel);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.plan-option:hover { border-color: var(--lavender);}
+
+.plan-option::after {
+    content: "";
+    position: absolute;
+    top: 22px;
+    right: 20px;
+    width: 17px;
+    height: 17px;
+    border: 2px solid var(--muted);
+    border-radius: 50%;
+}
+
+.plan-radio:checked + .plan-option {
+    border-color: var(--border-light);
+    background: var(--bg-main);
+}
+
+.plan-radio:checked + .plan-option::after {
+    border: 5px solid var(--lavender);
+}
+
+.plan-radio:focus-visible + .plan-option {
+    outline: 2px solid var(--lavender);
+    outline-offset: 3px;
+}
+
+.plan-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.plan-price {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.plan-price small {
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.cancel-subs-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--rose);
+    color: var(--rose);
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+.cancel-subs-btn:hover {
+    background: var(--rose);
+    color: var(--bg-main);
+}
+
 /* Progress bars */
 .dash-bar {
     width: 100%;
