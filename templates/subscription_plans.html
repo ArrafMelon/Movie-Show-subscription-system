@@ -111,8 +111,10 @@
                         <h5 class='mb-3'>Payment Information</h5>
                         <div class="mb-3">
                             <label for='card_number' class='form-label'>Card Number</label>
+
                             <input type='text' class="form-control" id='card_number' name='card_number' 
-                                maxlength='16' inputmode='numeric' placeholder='Enter your 16-digit card number' required>
+                                maxlength='19' inputmode='numeric' placeholder='Enter your 16-digit card number' required>
+             
                         </div>
 
                         <div class='row'>
@@ -177,6 +179,13 @@
             let value =this.value.replace(/\D/g, "").slice(0,4);
             if (value.length>2) { value=value.slice(0,2)+"/"+value.slice(2); }
             this.value=value;
+        });
+
+        const cardInput = document.getElementById('card_number');
+        cardInput.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, "").slice(0,16);
+            value=value.match(/.{1,4}/g)?.join("-") || "";
+            this.value = value;
         });
     </script>
 

@@ -444,7 +444,7 @@ def subscription_plan():
             return render_template("subscription_plans.html", 
                 message="You are already subscribed to the plan", sub_prices=sub_prices)
         
-        card_number=request.form["card_number"].replace(" ","")
+        card_number=request.form["card_number"].replace("-","")
         expiry = request.form["expiry"]
         cvv = request.form["cvv"]
         student_number = request.form["student_number"]
