@@ -12,53 +12,147 @@
     <div class="container-fluid min-vh-100 d-flex flex-column px-4 px-lg-5 py-4">
         {% include '_header.html' %}
 
-        {% if request.args.get('updated')=='1' %}
+        {% if message %}
             <div class='toast-container position-fixed top-0 end-0 p-3'>
                 <div id='changeToast' class='toast streamax-toast' role='alert'>
                     <div class='toast-body'>
-                        <span class='toast-icon'>✓</span>Plan updated successfully.
+                        <span class='toast-icon'>✓</span>{{message}}
                     </div>
                 </div>
             </div>
         {% endif %}
 
-        <div class='card-design w-100 mx-auto my-auto' style='max-width: 500px;'>
-            <h2 class='mb-4 text-center'>Choose a Plan</h2>
-            <p class='text-center form-message'>{{ message }}</p>
-            <p class ='text-center'>
-                Your current plan:
-                {% if session.subscription_type==1%}Student
-                {% elif session.subscription_type==2%}Individual
-                {% elif session.subscription_type==0%}No Plan
-                {% endif %}
-            </p>
+        <div class='card-design w-100 mx-auto mt-5 mb-4 p-4' style='max-width: 700px;'>
+            <h2 class='mb-3 text-center'>Subscription Plans</h2>
 
-            <form method="POST" action="/subscription_plan_user" class='account-form'>
-                <div class='mb-4 w-100'>
-                    <label for='subscription_type' class='form-label'>Plan</label>
-                    <select class='form-select' id='subscription_type' name="subscription_type">
-                        <option value="1" {% if session.subscription_type == 1 %}selected{% endif %}>Student - ${{ sub_prices[1] }}</option>
-                        <option value="2" {% if session.subscription_type == 2 %}selected{% endif %}>Individual - ${{ sub_prices[2] }}</option>
-                    </select>
+            <!-- Curr Subs -->
+             {% if session.subscription_type !=0 %}
+                <div class="text-center mb-4">
+                    <h5 class="mb-2">Current Subscription</h5>
+
+                    {% if session.subscription_type ==1 %}
+                        <h3>Student</h3>
+                        <p class="plan-price">${{sub_prices[1]}}<small>CAD / month</small></p>
+                    {% elif session.subscription_type ==2 %} 
+                        <h3>Individual</h3>
+                        <p class="plan-price">${{sub_prices[2]}}<small>CAD / month</small></p>
+                    {% endif %}
+
+                    <p>Your subscription is currently active.</p>
+
+                    <button type="button" class="btn btn-primary w-100" onclick="showChangePlans()">
+                        Change Plan
+                    </button>
                 </div>
 
-                <div class='mb-4 p-3 rounded-3 text-center' style='background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);'>
-                    <h5 class='mb-2'>Enter card and student information here</h5>
+            {% endif %}
+
+            <!-- Select plan -->
+            <div id="planSelection" {% if session.subscription_type != 0 %}style="display: none;"{% endif %}>
+                
+                <form method="POST" action="/subscription_plan_user" class='account-form'>
+                    <h5 class="text-center mb-3">
+                        {% if session.subscription_type !=0 %} Choose a New Plan
+                        {% else %} Choose Your Plan
+                        {% endif %} 
+                    </h5>
+
+                    <div class="row g-3 mb-4">
                     
-                    <input type='text' class='form-control mb-2' name='card_number' placeholder='Card number'>
-                    <input type='text' class='form-control mb-2' name='expiry' placeholder='MM/YY'>
-                    <input type='password' class='form-control' name='cvv' placeholder='CVV'><br><br>
-                    <input type='text' class='form-control mb-2' name='student_number' placeholder='Student number (student plan only)'>
+                        <!-- Student Plan -->
+                        <div class='col-md-6'>
+                            <input type='radio' class='plan-radio' id='student_plan' name="subscription_type"
+                                value="1" {% if session.subscription_type == 1%}checked{% endif %} required>
 
-                </div>
+                            <label for="student_plan" class="plan-option">
+                                <h5 class="mb-2">Student</h5>
+                                <div class="plan-price mb-2">  
+                                    ${{ sub_prices[1]}}<small>CAD / month</small>
+                                </div>
 
-                <button type="submit" class='btn btn-primary w-100'>Save Plan</button>
-            </form>
-            {% if session.subscribe_type != 0%}
-            <form method="POST" action="/cancel_subscription" class="text-center mt-4">
-                <button type="submit" class="btn btn-link back-home text-danger">Cancel Subscription</button>
+                                <p class="mb-3"> A discounted plan for eligible students.</p>
+
+                                <ul class="mb-0">
+                                    <li>Full catalogue browsing</li>
+                                    <li>Search and filter content</li>
+                                    <li>Personal watchlist</li>
+                                    <li>Personalized dashboard</li>
+                                </ul>
+
+                            </label>
+                        </div>
+
+                        <!-- Individual Plan -->
+                        <div class='col-md-6'>
+                            <input type='radio' class='plan-radio' id='individual_plan' name="subscription_type"
+                                value="2" {% if session.subscription_type == 2%}checked{% endif %} required>
+
+                            <label for="individual_plan" class="plan-option">
+                                <h5 class="mb-2">Individual</h5>
+                                <div class="plan-price mb-2">  
+                                    ${{ sub_prices[2]}}<small>CAD / month</small>
+                                </div>
+
+                                <p class="mb-3"> A standard plan for individual subscribers.</p>
+
+                                <ul class="mb-0">
+                                    <li>Full catalogue browsing</li>
+                                    <li>Search and filter content</li>
+                                    <li>Personal watchlist</li>
+                                    <li>Personalized dashboard</li>
+                                </ul>
+
+                            </label>
+                        </div>
+                    </div>
+                     
+                    <!-- Payment Info -->
+                    <div class='mb-4'>
+                        <h5 class='mb-3'>Payment Information</h5>
+                        <div class="mb-3">
+                            <label for='card_number' class='form-label'>Card Number</label>
+                            <input type='text' class="form-control" id='card_number' name='card_number' 
+                                maxlength='16' inputmode='numeric' placeholder='Enter your 16-digit card number' required>
+                        </div>
+
+                        <div class='row'>
+                            <div class='col-md-6 mb-3'>
+                                <label for='expiry' class='form-label'>Expiry Date</label>
+                                <input type='text' class="form-control" id='expiry' name='expiry' 
+                                maxlength='5' inputmode='numeric' placeholder='MM/YY' required>
+                            </div>
+
+                            <div class='col-md-6 mb-3'>
+                                 <label for='cvv' class='form-label'>CVV</label>
+                                <input type='password' class="form-control" id='cvv' name='cvv' 
+                                maxlength='3' inputmode='numeric' placeholder='3 digit CVV' required>
+                            </div>
+                        </div>
+                    
+                    </div>
+
+                    <!-- Student Num -->
+                    <div class='mb-4'>
+                        <label for='student_number' class='form-label'>Student Number
+                        <span class="text-secondary">(Required for Student plan)</span>
+                    </label>
+                        <input type='text' class="form-control" id='student_number' name='student_number' 
+                            maxlength='9' inputmode='numeric' placeholder='Enter your 9-digit student number'>
+                    </div>
+
+                    <button type="submit" class='btn btn-primary w-100'>Save Plan</button>
+                   
+                </form>
+            </div>
+
+            <!-- Cancel Subs -->
+            {% if session.subscription_type != 0%}
+            <form method="POST" action="/cancel_subscription" class="text-center mt-4"
+            onsubmit="return confirm('Are you sure you want to cancel your subscription?');">
+                <button type="submit" class="btn btn-danger w-70">Cancel Subscription</button>
             </form>
             {% endif %}
+
             <div class='text-center mt-4'>
                 <a href="/" class='back-home'>Back to Home</a>
             </div>
@@ -66,11 +160,34 @@
     </div>
 
     <script>
+        // show plan select when "change plan" is clicked
+        function showChangePlans() {
+            document.getElementById('planSelection').style.display='block';
+        }
+
         const toastElem = document.getElementById('changeToast');
         if (toastElem) {
             const toast = new bootstrap.Toast(toastElem, {delay:2000});
             toast.show();
         }
+
+        //CC expiry
+        const expiryInput =document.getElementById('expiry');
+        expiryInput.addEventListener('input', function() {
+            let value =this.value.replace(/\D/g, "").slice(0,4);
+            if (value.length>2) { value=value.slice(0,2)+"/"+value.slice(2); }
+            this.value=value;
+        });
     </script>
+
+    <!-- auto redirect after successful subs -->
+    {% if redirect_after_subs %}
+        <script>
+            setTimeout(function() {
+                window.location.href="{{url_for('search_media')}}";
+            }, 2000);
+        </script>
+    {% endif %}
+
 </body>
 </html>

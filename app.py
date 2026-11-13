@@ -4,6 +4,7 @@ from flask import render_template
 from flask import request
 from flask import session
 from flask import redirect, url_for, flash
+from datetime import datetime
 
 # Create the DB file
 connection = sqlite3.connect("subscription.db")
@@ -426,32 +427,62 @@ def subscription_plan():
         return render_template("login.html",message="Plans for users only")
 
     connection = sqlite3.connect("subscription.db")
+    
     # pull price details
     sub_prices = dict(connection.execute("SELECT subscription_type, subscription_price FROM subscription_details").fetchall())
     connection.close()
 
     if request.method=="POST":
         subscription_type=int(request.form["subscription_type"])
+        
+        if subscription_type not in (1, 2):
+            return render_template("subscription_plans.html", message="Invalid Subscription Plan", sub_prices=sub_prices)
+        
+        #check if user already has the selected plan
+        curr_subs = session.get("subscription_type", 0)
+        if subscription_type == curr_subs:
+            return render_template("subscription_plans.html", 
+                message="You are already subscribed to the plan", sub_prices=sub_prices)
+        
         card_number=request.form["card_number"].replace(" ","")
-        expiry = request.form["expiry"].replace("/","")
+        expiry = request.form["expiry"]
         cvv = request.form["cvv"]
         student_number = request.form["student_number"]
 
         # checking student number (9 digit)
-        if subscription_type == 1 and (not student_number.isdigit() or len(student_number) != 9):
-            return render_template("subscription_plans.html", message="Invalid Student Number!",sub_prices=sub_prices)
+        if subscription_type == 1:
+            if not student_number.isdigit() or len(student_number) != 9:
+                return render_template("subscription_plans.html", message="Invalid Student Number",sub_prices=sub_prices)
 
         # checking card details for plans (i.e if length, cvv, and date are valid numbner formats)
-        if not card_number.isdigit() or len(card_number) != 16 or not cvv.isdigit() or len(cvv) != 3 or not expiry.isdigit() or len(expiry)!=4:
-            return render_template("subscription_plans.html", message="Invalid Card Number!",sub_prices=sub_prices)
+        if not card_number.isdigit() or len(card_number) != 16 or not cvv.isdigit() or len(cvv) != 3:
+            return render_template("subscription_plans.html", message="Invalid Card Details",sub_prices=sub_prices)
 
+        # check expiry date (MM/YY)
+        try:
+            month, year = expiry.split("/")
+            month=int(month)
+            year=2000+int(year)
+            if month <1 or month >12:
+                raise ValueError
+            curr_date = datetime.now()
+            
+            if (year, month) <(curr_date.year, curr_date.month):
+                raise ValueError
+            
+        except ValueError:
+            return render_template("subscription_plans.html", message="Invalid or Expired Card Date", sub_prices=sub_prices)
+
+        # update user subs
         connection = sqlite3.connect("subscription.db")
         connection.execute("UPDATE user_details SET subscription_type=? WHERE id=?",
                             (subscription_type,session["id"]))
         connection.commit()
         connection.close()
         session["subscription_type"]=subscription_type
-        return render_template("subscription_plans.html", message="Successfully changed subscription",sub_prices=sub_prices)
+        
+        return render_template("subscription_plans.html", message="Successfully Subscribed",sub_prices=sub_prices, redirect_after_subs=True)
+    
     return render_template("subscription_plans.html",sub_prices=sub_prices)
 
 @app.route('/cancel_subscription', methods=['GET','POST'])
@@ -466,7 +497,7 @@ def cancel_subscription():
     connection.commit()
     connection.close()
     session["subscription_type"]=0
-    return render_template("subscription_plans.html", message="Successfully cancelled subscription",sub_prices=sub_prices)
+    return render_template("subscription_plans.html", message="Successfully cancelled subscription. Subscribe again to explore the catalogue and see your saved watchlist.",sub_prices=sub_prices)
 
 @app.route('/user_support', methods=['GET','POST'])
 def contact_support():
