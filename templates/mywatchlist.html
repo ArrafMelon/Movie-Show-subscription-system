@@ -17,16 +17,17 @@
             <div class = "text-center mb-5">
                 <h2>My Watchlist</h2>
             </div>
-
-            {% if request.args.get('removed')=='1' %}
-                <div class='toast-container position-fixed top-0 end-0 p-3'>
-                    <div id='removeToast' class='toast streamax-toast' role='alert'>
-                        <div class='toast-body'>
-                            <span class='toast-icon'>✓</span>Removed from your watchlist.
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class='toast-container position-fixed top-0 end-0 p-3'>
+                        <div id='removeToast' class='toast streamax-toast' role='alert'>
+                            <div class='toast-body'>
+                                <span class='toast-icon'>✓</span>{{messages[0]}}
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% endif %}
+                {% endif %}
+            {% endwith %}
             
             <div class='row g-4'>
                 {% for media in all_media %}
@@ -63,7 +64,7 @@
 
                         
 
-                                        <form method="POST" action="/remove-watchlist">
+                                        <form method="POST" action="{{url_for('remove_watchlist')}}">
                                             <input type="hidden" name="media_id" value="{{ media[0] }}">
                                             <button type="submit" class='btn btn-danger w-100 mt-3'>Remove to Watchlist</button>
                                         </form>

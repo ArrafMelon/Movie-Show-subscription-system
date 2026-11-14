@@ -11,16 +11,17 @@
 <body>
     <div class="container-fluid min-vh-100 d-flex flex-column px-4 px-lg-5 py-4">
         {% include '_header.html' %}
-
-        {% if request.args.get('changed')=='1' %}
-            <div class='toast-container position-fixed top-0 end-0 p-3'>
-                <div id='changeToast' class='toast streamax-toast' role='alert'>
-                    <div class='toast-body'>
-                        <span class='toast-icon'>✓</span>Name changed successfully.
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class='toast-container position-fixed top-0 end-0 p-3'>
+                    <div id='changeToast' class='toast streamax-toast' role='alert'>
+                        <div class='toast-body'>
+                            <span class='toast-icon'>✓</span>{{messages[0]}}
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
+        {% endwith %}
         
 
         <div class='card-design w-100 mx-auto my-auto' style='max-width: 500px;'>

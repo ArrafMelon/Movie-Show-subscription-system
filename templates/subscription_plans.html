@@ -12,30 +12,37 @@
     <div class="container-fluid min-vh-100 d-flex flex-column px-4 px-lg-5 py-4">
         {% include '_header.html' %}
 
-        {% if message %}
-            <div class='toast-container position-fixed top-0 end-0 p-3'>
-                <div id='changeToast' class='toast streamax-toast' role='alert'>
-                    <div class='toast-body'>
-                        <span class='toast-icon'>✓</span>{{message}}
+        {% with messages = get_flashed_messages() %}
+            {% if message or messages %}
+                <div class='toast-container position-fixed top-0 end-0 p-3'>
+                    <div id='changeToast' class='toast streamax-toast' role='alert'>
+                        <div class='toast-body'>
+                            <span class='toast-icon'>✓</span>
+                            
+                            {% if message %} {{message}}
+                            {% else %} {{ messages[0]}}
+                            {%endif %}
+
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
+        {% endwith %}
 
         <div class='card-design w-100 mx-auto mt-5 mb-4 p-4' style='max-width: 700px;'>
             <h2 class='mb-3 text-center'>Subscription Plans</h2>
 
             <!-- Curr Subs -->
-             {% if session.subscription_type !=0 %}
+            {% if session.subscription_type !=0 %}
                 <div class="text-center mb-4">
                     <h5 class="mb-2">Current Subscription</h5>
 
                     {% if session.subscription_type ==1 %}
                         <h3>Student</h3>
-                        <p class="plan-price">${{sub_prices[1]}}<small>CAD / month</small></p>
+                        <p class="plan-price">${{"%.2f"|format(sub_prices[1])}}<small> CAD / month</small></p>
                     {% elif session.subscription_type ==2 %} 
                         <h3>Individual</h3>
-                        <p class="plan-price">${{sub_prices[2]}}<small>CAD / month</small></p>
+                        <p class="plan-price">${{"%.2f"|format(sub_prices[2])}}<small> CAD / month</small></p>
                     {% endif %}
 
                     <p>Your subscription is currently active.</p>
@@ -46,6 +53,7 @@
                 </div>
 
             {% endif %}
+        
 
             <!-- Select plan -->
             <div id="planSelection" {% if session.subscription_type != 0 %}style="display: none;"{% endif %}>
@@ -67,7 +75,7 @@
                             <label for="student_plan" class="plan-option">
                                 <h5 class="mb-2">Student</h5>
                                 <div class="plan-price mb-2">  
-                                    ${{ sub_prices[1]}}<small>CAD / month</small>
+                                    ${{"%.2f"|format(sub_prices[1])}} <small>CAD / month</small>
                                 </div>
 
                                 <p class="mb-3"> A discounted plan for eligible students.</p>
@@ -90,7 +98,7 @@
                             <label for="individual_plan" class="plan-option">
                                 <h5 class="mb-2">Individual</h5>
                                 <div class="plan-price mb-2">  
-                                    ${{ sub_prices[2]}}<small>CAD / month</small>
+                                    ${{"%.2f"|format(sub_prices[2])}}<small> CAD / month</small>
                                 </div>
 
                                 <p class="mb-3"> A standard plan for individual subscribers.</p>
@@ -151,7 +159,7 @@
             {% if session.subscription_type != 0%}
             <form method="POST" action="/cancel_subscription" class="text-center mt-4"
             onsubmit="return confirm('Are you sure you want to cancel your subscription?');">
-                <button type="submit" class="btn btn-danger w-70">Cancel Subscription</button>
+                <button type="submit" class="btn btn-danger w-100 cancel-subs-btn">Cancel Subscription</button>
             </form>
             {% endif %}
 
@@ -188,15 +196,6 @@
             this.value = value;
         });
     </script>
-
-    <!-- auto redirect after successful subs -->
-    {% if redirect_after_subs %}
-        <script>
-            setTimeout(function() {
-                window.location.href="{{url_for('search_media')}}";
-            }, 2000);
-        </script>
-    {% endif %}
 
 </body>
 </html>

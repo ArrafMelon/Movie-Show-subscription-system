@@ -111,8 +111,9 @@ def register():
             connection.close()
             return render_template("registration.html", message="Email already exists")
         connection.close()
-        return render_template("registration.html", message="Successfully registered!",
-            redirect_after_register=True)
+        
+        flash("Successfully registered", 'success')
+        return redirect(url_for("login"))
     return render_template("registration.html")
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -147,8 +148,8 @@ def login():
         session["account_type"] = user[4]
         session["subscription_type"] = user[5]
         #redirecting to dashboard after successful logiin
-        return render_template("login.html", message="Successfully Logged in!", 
-            redirect_after_login=True)
+        flash("Successfully logged in", 'success')
+        return redirect(url_for("page"))
     return render_template("login.html")
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -157,8 +158,11 @@ def logout():
     # clearing session if session is not empty
     if session:
         session.clear()
-        return render_template("homepage.html", message="Successfully logged out")
-    return render_template("homepage.html", message="Not currently logged in")
+        flash("Successfully logged out", 'success')
+    else:
+        flash("You are not currently logged in", 'success')
+        
+    return redirect(url_for("page"))
 
 @app.route('/accmgmt', methods=['GET', 'POST'])
 def account_management():
@@ -196,8 +200,9 @@ def change_name():
         connection.close()
         session["name"] = newname
         
-        return redirect(url_for("change_name", changed=1))
-        #return render_template("namechange.html", message="Name changed successfully!")
+        flash("Name changed successfully!", 'success')
+        return redirect(url_for("change_name"))
+    
     return render_template("namechange.html")
 
 @app.route('/pwdchange', methods=['GET', 'POST'])
@@ -233,8 +238,10 @@ def change_password():
         connection.commit()
         connection.close()
         session["password"] = newpassword
-        return redirect(url_for("change_password", changed=1))
-        #return render_template("pwdchange.html", message="Password changed successfully!")
+        
+        flash("Password changed successfully!", 'success')
+        return redirect(url_for("change_password"))
+        
     return render_template("pwdchange.html")
 
 @app.route('/addmedia', methods=['GET', 'POST'])
@@ -287,7 +294,9 @@ def add_media():
             connection.close()
             return render_template("add_media.html", message="Media Already Exists!")
         connection.close()
-        return render_template("add_media.html", message="Successfully Added!")
+        
+        flash("Successfully added media", 'success')
+        return redirect(url_for("add_media"))
     return render_template("add_media.html")
 
 @app.route('/search_media', methods=['GET', 'POST'])
@@ -371,14 +380,17 @@ def add_watchlist():
         try:
             connection.execute("INSERT INTO user_watchlist (user_id, media_id) VALUES (?,?)",(session["id"],media_id))
             connection.commit()
-            message="Added to watchlist :)"
+            flash("Added to watchlist", 'success')
         except sqlite3.IntegrityError:
-            message = "Already in your Watchlist"
+            flash("Already in your Watchlist", 'success')
         all_media=connection.execute("SELECT * FROM media_details").fetchall()
         connection.close()
-        return redirect(next_page + ('&' if "?" in next_page else '?')+"added=1")
+        #return redirect(next_page + ('&' if "?" in next_page else '?')+"added=1")
+        
+        return redirect(next_page)
+    
     return redirect(url_for('search_media'))
-        #return render_template("search_media.html", all_media=all_media, message=message)
+       
     #return render_template("search_media.html")
 
 @app.route('/mywatchlist', methods=['GET','POST'])
@@ -417,7 +429,9 @@ def remove_watchlist():
         all_media = connection.execute("SELECT media_details.* FROM user_watchlist JOIN media_details ON user_watchlist.media_id=media_details.media_id WHERE user_watchlist.user_id=?",
                                            (user_id,)).fetchall()
         connection.close()
-        return redirect(url_for("my_watchlist", removed=1))
+        
+        flash("Removed from your watchlist", 'success')
+        return redirect(url_for("my_watchlist"))
     return render_template("mywatchlist.html")
 
 @app.route('/subscription_plan_user', methods=['GET','POST'])
@@ -481,7 +495,8 @@ def subscription_plan():
         connection.close()
         session["subscription_type"]=subscription_type
         
-        return render_template("subscription_plans.html", message="Successfully Subscribed",sub_prices=sub_prices, redirect_after_subs=True)
+        flash("Successfully Subscribed!", "success")
+        return redirect(url_for("subscription_plan"))
     
     return render_template("subscription_plans.html",sub_prices=sub_prices)
 
@@ -497,7 +512,10 @@ def cancel_subscription():
     connection.commit()
     connection.close()
     session["subscription_type"]=0
-    return render_template("subscription_plans.html", message="Successfully cancelled subscription. Subscribe again to explore the catalogue and see your saved watchlist.",sub_prices=sub_prices)
+    
+    flash("Successfully cancelled subscription!", "success")
+    return redirect(url_for('subscription_plan'))
+
 
 @app.route('/user_support', methods=['GET','POST'])
 def contact_support():
@@ -555,13 +573,13 @@ def user_dashboard():
     for media in my_media:
         if media[3] == "Movie":
             movies += 1
-            total_minutes += media[6]
-        else:
+            total_minutes += media[6] or 0
+        elif media[3] =='Show':
             shows += 1
             # shows: length x seasons x episodes per season
-            total_minutes += media[6] * media[7] * media[8]
+            total_minutes += (media[6] or 0) *(media[7] or 0) * (media[8] or 0)
 
-        for genre in media[5].split(", "):
+        for genre in (media[5] or "").split(", "):
             genre_counts[genre] = genre_counts.get(genre, 0) + 1
 
     watch_time = str(total_minutes // 60) + "h " + str(total_minutes % 60) + "m"
@@ -580,11 +598,11 @@ def user_dashboard():
                 recommended.append(media)
                 break
 
-    heading = "Picked for you"
+    heading = "Recommended for You"
     # new users have no genres yet so just show some media
     if not recommended:
         recommended = other_media
-        heading = "Explore something new"
+        heading = "Discover Something New"
 
     return render_template("user_dashboard.html", total=len(my_media), movies=movies,
                            shows=shows, watch_time=watch_time, recent=my_media[:5],
@@ -607,11 +625,13 @@ def admin_dashboard():
     total_movies = connection.execute("SELECT COUNT(*) FROM media_details WHERE media_type='Movie'").fetchone()[0]
     total_shows = connection.execute("SELECT COUNT(*) FROM media_details WHERE media_type='Show'").fetchone()[0]
     total_users = connection.execute("SELECT COUNT(*) FROM user_details WHERE account_type='User'").fetchone()[0]
-    total_subs = connection.execute("SELECT COUNT(*) FROM user_watchlist").fetchone()[0]
+    total_subs = connection.execute("SELECT COUNT(*) FROM user_details WHERE account_type='User' AND subscription_type IN (1,2)").fetchone()[0]
 
     # last 5 media added and last 5 people who registered (no passwords)
     recent_media = connection.execute("SELECT * FROM media_details ORDER BY media_id DESC LIMIT 5").fetchall()
     new_members = connection.execute("SELECT name, email, account_type FROM user_details ORDER BY id DESC LIMIT 5").fetchall()
+    plan_prices = connection.execute("SELECT subscription_type, subscription_price FROM subscription_details ORDER BY subscription_type").fetchall()
+    all_users = connection.execute("SELECT id, name, email, subscription_type FROM user_details WHERE account_type='User' ORDER BY id").fetchall()
     connection.close()
 
     # average subscriptions per user
@@ -629,6 +649,10 @@ def admin_dashboard():
     for media in all_media:
         if media[9] == 0:
             no_subs.append(media)
+            
+    #subscriber rate
+    subs_rate = 0
+    if total_users >0: subs_rate=round((total_subs / total_users) *100,1)
 
     # subscriptions per genre
     genre_subs = {}
@@ -643,11 +667,60 @@ def admin_dashboard():
 
     return render_template("admin_dashboard.html", total_media=len(all_media),
                            total_movies=total_movies, total_shows=total_shows,
-                           total_users=total_users, total_subs=total_subs, avg_subs=avg_subs,
+                           total_users=total_users, total_subs=total_subs, subs_rate=subs_rate,
                            top_media=all_media[:5], top_subs=top_subs,
                            top_genres=top_genres, max_genre_subs=max_genre_subs,
                            recent_media=recent_media, no_subs=no_subs[:5],
-                           new_members=new_members)
+                           new_members=new_members, plan_prices=plan_prices, all_users=all_users)
+
+@app.route('/update_subscription_price', methods=['POST'])
+def update_subscription_price():
+    # Admin access only
+    if 'email' not in session: return render_template('login.html', message="Please log into account first")
+    if session['account_type'] != 'Admin': return redirect(url_for('user_dashboard'))
+    
+    subscription_type = request.form['subscription_type']
+    
+    try: 
+        new_price = float(request.form['subscription_price'])
+    
+        if new_price <= 0: raise ValueError
+    except ValueError: return redirect(url_for('admin_dashboard'))
+        
+    if subscription_type not in ("1", "2"): return redirect(url_for('admin_dashboard'))
+    connection = sqlite3.connect('subscription.db')
+    
+    connection.execute('UPDATE subscription_details SET subscription_price=? WHERE subscription_type=?', 
+                       (new_price, subscription_type))
+    connection.commit()
+    connection.close()
+    flash("Subscription price updated successfully!", "Success")
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/update_user_subscription', methods=['POST'])
+def update_user_subscription():
+    if 'email' not in session: return render_template('login.html', message="Please log into account first")
+    if session['account_type'] != 'Admin': return redirect(url_for('user_dashboard'))
+    
+    try:
+        user_id = int(request.form['user_id'])
+        subscription_type = int(request.form['subscription_type'])
+        if subscription_type not in (0,1,2): return redirect(url_for('admin_dashboard'))
+        
+    except (ValueError, KeyError): return redirect(url_for('admin_dashboard'))
+    
+    connection = sqlite3.connect('subscription.db')
+    cursor = connection.execute("UPDATE user_details SET subscription_type=? WHERE id=? AND account_type=?",
+                       (subscription_type, user_id, "User"))
+    connection.commit()
+    connection.close()
+
+    if cursor.rowcount >0:
+        if subscription_type==0: flash("Selected user's subscription has been cancelled successfully", "Success")
+        else: flash("Selected user's subscription has been updated successfully", "Success")
+    return redirect(url_for('admin_dashboard'))
+
 if __name__ == '__main__':
     app.run(debug=True)
 
