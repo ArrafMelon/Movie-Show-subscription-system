@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
     <div class="container-fluid min-vh-100 px-4 px-lg-5 py-4">
@@ -14,7 +15,7 @@
 
         <main class="dashboard-pg mx-auto mt-5">
 
-            <div class="dash-heading">
+            <div class="dash-heading mb-4">
                 <div>
                     <span class="admin-label">ADMINISTRATION</span>
                     <h2>Admin Dashboard</h2>
@@ -30,7 +31,7 @@
                         <span class="material-symbols-outlined">video_library</span>
                         <div>
                             <div class="dash-stat-value">{{ total_media }}</div>
-                            <p class="dash-stat-label">Total media</p>
+                            <p class="dash-stat-label">Total Titles</p>
                         </div>
                     </div>
                 </div>
@@ -60,7 +61,7 @@
                         <span class="material-symbols-outlined">group</span>
                         <div>
                             <div class="dash-stat-value">{{ total_users }}</div>
-                            <p class="dash-stat-label">Users</p>
+                            <p class="dash-stat-label">Registered Users</p>
                         </div>
                     </div>
                 </div>
@@ -70,7 +71,7 @@
                         <span class="material-symbols-outlined">subscriptions</span>
                         <div>
                             <div class="dash-stat-value">{{ total_subs }}</div>
-                            <p class="dash-stat-label">Subscriptions</p>
+                            <p class="dash-stat-label">Active Subscriptions</p>
                         </div>
                     </div>
                 </div>
@@ -79,20 +80,103 @@
                     <div class="dash-stat admin-stat">
                         <span class="material-symbols-outlined">trending_up</span>
                         <div>
-                            <div class="dash-stat-value">{{ avg_subs }}</div>
-                            <p class="dash-stat-label">Avg. per user</p>
+                            <div class="dash-stat-value">{{ subs_rate }}%</div>
+                            <p class="dash-stat-label">Subscriber Rate</p>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Manage subs prices -->
+            <div class="dash-panel mt-4">
+                <div class='dash-panel-head'>
+                    <div>
+                        <h3>Subscription Plan Pricing</h3>
+                        <p>Update the monthly prices for each plan.</p>
+                    </div>
+                </div>
+
+                <div class='row g-3'>
+                    {% for plan in plan_prices %}
+                        <div class='col-12 col-md-6'>
+                            <div class="subs-admin-card">
+
+                                <div class="subs-admin-info">
+                                    <span class='admin-label'>
+                                        {% if plan[0]==1 %}STUDENT PLAN
+                                        {% else%}INDIVIDUAL PLAN
+                                        {% endif %}
+                                    </span>
+
+                                    <div class="subs-admin-price">
+                                        ${{ "%.2f"|format(plan[1])}}<small>/ month</small>
+                                    </div>
+
+                                </div>
+
+                                <form method="POST" action="{{ url_for('update_subscription_price')}}">
+                                    <input type='hidden' name='subscription_type' value="{{plan[0]}}">
+
+                                    <label class='form-label'>New monthly price</label>
+                                    <div class='d-flex gap-2'>
+                                        <input type='number' name='subscription_price' class='form-control' 
+                                            value="{{plan[1]}}" min='0.01' step='0.01' required>
+                                        
+                                        <button type='submit' class='btn subs-save-btn'>Save</button>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Manage user subs -->
+            <div class="dash-panel mt-4">
+                <div class='dash-panel-head'>
+                    <div>
+                        <h3>Manage User Subscriptions</h3>
+                        <p>Change or cancel a user's current subscription.</p>
+                    </div>
+                </div>
+
+                <input type='text' id='userSearch' class="form-control mb-3" placeholder='Search users by name or email...'>
+
+                {% for user in all_users %}
+                    <div class="subs-user-row" data-user-search="{{(user[1] ~ ' ' ~ user[2])|lower}}">
+                        <div class='subs-user-info'>
+                            <span class="subs-user-name">{{user[1]}}</span>
+                            <p>{{ user[2]}}</p>
+                        </div>
+
+                        <form method='POST' action="{{url_for('update_user_subscription')}}"
+                            class="subs-user-form" data-user-name="{{user[1]}}" onsubmit="return confirmUserSubscription(this)">
+                        
+                            <input type='hidden' name='user_id' value="{{user[0]}}">
+                            <select name='subscription_type' class='form-select'>
+                                <option value='0' {% if user[3] == 0%}selected{% endif %}>No Subscription</option>
+                                <option value='1' {% if user[3] == 1%}selected{% endif %}>Student Plan</option>
+                                <option value='2' {% if user[3] == 2%}selected{% endif %}>Individual Plan</option>
+                            </select>
+
+                            <button type='submit' class='btn subs-save-btn'>Save</button>
+
+                        </form>
+                    </div>
+                {% else %}
+                    <p class='dash-empty'>No registered users yet.</p>
+                {% endfor %}
+            </div>
+
 
             <div class="row g-4 mt-1">
                 <!-- most subscribed -->
                 <div class="col-12 col-lg-7">
                     <div class="dash-panel">
                         <div class="dash-panel-head">
-                            <h3>Most subscribed</h3>
-                            <a href="/searchmedia">View all media</a>
+                            <h3>Most Added to Watchlist</h3>
+                            <a href="/search_media">View all media</a>
                         </div>
 
                         {% for media in top_media %}
@@ -122,20 +206,16 @@
                 <div class="col-12 col-lg-5">
                     <div class="dash-panel">
                         <div class="dash-panel-head">
-                            <h3>Popular genres</h3>
+                            <h3>Top Genres by Watchlist Activity</h3>
                         </div>
 
                         {% for genre, count in top_genres %}
-                            <div class="dash-bar-row">
-                                <div class="dash-bar-label">
-                                    <span>{{ genre }}</span>
-                                    <span>{{ count }} subscriptions</span>
+                            <div class="admin-genre-row">
+                                <div class="admin-genre-name">
+                                    <span class='admin-genre-rank'>{{ loop.index }}</span>
+                                    <span>{{genre}}</span>
                                 </div>
-                                <div class="dash-bar">
-                                    <div class="dash-bar-fill"
-                                    style="width: {{ (count / max_genre_subs * 100) if max_genre_subs else 0 }}%">
-                                </div>
-                                </div>
+                                <span class='admin-genre-count'>{{ count }} {{'entry' if count==1 else 'entries'}}</span>
                             </div>
                         {% else %}
                             <p class="dash-empty">No genres yet.</p>
@@ -149,7 +229,7 @@
                 <div class="col-12 col-lg-4">
                     <div class="dash-panel">
                         <div class="dash-panel-head">
-                            <h3>Recently added</h3>
+                            <h3>Recently Added Titles</h3>
                         </div>
 
                         {% for media in recent_media %}
@@ -172,7 +252,7 @@
                 <div class="col-12 col-lg-4">
                     <div class="dash-panel">
                         <div class="dash-panel-head">
-                            <h3>No subscribers yet</h3>
+                            <h3>Titles Not Yet Added to Watchlists</h3>
                         </div>
 
                         {% for media in no_subs %}
@@ -186,7 +266,11 @@
                                 <span class="media-type">{{ media[3] }}</span>
                             </div>
                         {% else %}
-                            <p class="dash-empty">Everything has at least one subscriber.</p>
+                            <div class='admin-empty-state'>
+                                <span class='material-symbols-outlined'>check_circle</span>
+                                <h4>All Caught Up!</h4>
+                                <p>Every title has been added to at least one watchlist.</p>
+                            </div>
                         {% endfor %}
                     </div>
                 </div>
@@ -195,7 +279,7 @@
                 <div class="col-12 col-lg-4">
                     <div class="dash-panel">
                         <div class="dash-panel-head">
-                            <h3>Newest members</h3>
+                            <h3>Recently Registered Members</h3>
                         </div>
 
                         {% for member in new_members %}
@@ -214,5 +298,54 @@
             </div>
         </main>
     </div>
+
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class='toast streamax-toast position-fixed top-0 end-0 m-4' id='adminToast'
+                role='alert' aria-live='polite' aria-atomic='true'>
+
+                <div class='toast-body'><span class='material-symbols-outlined'>check_circle</span>
+                {{messages[0]}}
+                </div>
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
+    <script>
+        const toastElem=document.getElementById('adminToast');
+        if (toastElem) {
+            const toast = new bootstrap.Toast(toastElem, {delay:3000});
+            toast.show();
+        }
+    </script>
+
+    <script>
+        function confirmUserSubscription(form) {
+            const userName = form.dataset.userName;
+            const selectedPlan = form.querySelector('select').value;
+
+            if (selectedPlan=='0') {
+                return confirm(`Are you sure you want to cance ${userName}'s subscription?`);
+            }
+
+            const planName = form.querySelector('select').selectedOptions[0].text;
+            return confirm(`Are you sure you want to change ${userName}'s subscription to ${planName}?`);
+        }
+
+        const userSearch =document.getElementById('userSearch');
+            if (userSearch) {
+            userSearch.addEventListener('input', function() {
+                const searchText = this.value.toLowerCase();
+                const userRows = document.querySelectorAll('.subs-user-row');
+                userRows.forEach(function(row) {
+                    const userInfo = row.dataset.userSearch;
+                    if (userInfo.includes(searchText)) { row.style.display='flex'; } 
+                    else { row.style.display='none'; }
+                });
+            });
+        }
+    </script>
 </body>
 </html>

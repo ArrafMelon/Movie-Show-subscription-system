@@ -6,10 +6,23 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
     <div class="homepage container-fluid min-vh-100 d-flex flex-column px-4 px-lg-5 py-4">
         {% include '_header.html' %}
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class='toast-container position-fixed top-0 end-0 p-3'>
+                    <div id='logoutToast' class='toast streamax-toast' role='alert'>
+                        <div class='toast-body'>
+                            <span class='toast-icon'>✓</span>{{messages[0]}}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endwith %}
 
         <main class="home-feature flex-grow-1 d-flex flex-column justify-content-center align-items-start py-5">
             {% if session.name %}
@@ -41,5 +54,13 @@
             {% endif %}
         </main>
     </div>
+
+        <script>
+            const toastElem = document.getElementById('logoutToast');
+            if (toastElem) {
+                const toast = new bootstrap.Toast(toastElem, {delay:2000});
+                toast.show();
+            }
+        </script>
 </body>
 </html>

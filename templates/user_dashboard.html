@@ -20,7 +20,7 @@
                     <h2>Welcome back, {{ session.name }}</h2>
                     <p>Here's a quick look at your watchlist.</p>
                 </div>
-                <a href="/searchmedia" class="btn add-media-btn">Explore Movies & Shows</a>
+                <a href="/search_media" class="btn add-media-btn mb-4">Browse Movies & Shows</a>
             </div>
 
             <!-- numbers -->
@@ -30,7 +30,7 @@
                         <span class="material-symbols-outlined">subscriptions</span>
                         <div>
                             <div class="dash-stat-value">{{ total }}</div>
-                            <p class="dash-stat-label">Watchlist Entries</p>
+                            <p class="dash-stat-label">Watchlist Items</p>
                         </div>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                         <span class="material-symbols-outlined">schedule</span>
                         <div>
                             <div class="dash-stat-value">{{ watch_time }}</div>
-                            <p class="dash-stat-label">Total watch time</p>
+                            <p class="dash-stat-label">Estimated Total Runtime</p>
                         </div>
                     </div>
                 </div>
@@ -71,8 +71,8 @@
                 <div class="col-12 col-lg-7">
                     <div class="dash-panel">
                         <div class="dash-panel-head">
-                            <h3>Recently subscribed</h3>
-                            <a href="/mysubscriptions">View all</a>
+                            <h3>Recently Added to Your Watchlist</h3>
+                            <a href="/mywatchlist">View Your Watchlist</a>
                         </div>
 
                         {% for media in recent %}
@@ -88,38 +88,43 @@
                                 <span class="media-type">{{ media[3] }}</span>
                             </div>
                         {% else %}
-                            <p class="dash-empty">You haven't subscribed to anything yet.</p>
+                            <p class="dash-empty">You haven't added anything to your watchlist yet.</p>
                         {% endfor %}
                     </div>
                 </div>
 
                 <!-- favourite genres -->
-                <div class="col-12 col-lg-5">
+                <div class="col-12 col-lg-5 mb-4">
                     <div class="dash-panel">
                         <div class="dash-panel-head">
-                            <h3>Your favourite genres</h3>
+                            <h3>Your Top Genres</h3>
                         </div>
 
-                        {% for genre, count in top_genres %}
-                            <div class="dash-bar-row">
-                                <div class="dash-bar-label">
-                                    <span>{{ genre }}</span>
-                                    <span>{{ count }}</span>
-                                </div>
-                                <div class="dash-bar-fill"
-                                    style="width: {{ (count / max_genre_count * 100) if max_genre_count else 0 }}%">
-                                </div>
+                        {% if top_genres %}
+                            <p>Based on titles in your watchlist</p>
+                            <div class="dash-genre-grid">
+                                {% for genre, count in top_genres %}
+                                    <div class="dash-genre-card">
+                                        <span class="dash-genre-name">{{ genre }}</span>
+                                        <span class="dash-genre-count">{{ count }} {{ 'title' if count==1 else 'titles' }}</span>
+                                    </div>
+                                {% endfor %}
                             </div>
+
                         {% else %}
-                            <p class="dash-empty">Subscribe to something and your genres will show up here.</p>
-                        {% endfor %}
+                            <div class='dash-empty'>
+                                <a href="/search_media">Browse Movies/Shows</a>
+                                <p class="dash-empty">Add titles to your watchlist to see your top genres here.</p>
+                                
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
 
             <!-- recommendations -->
-            <h3 class="dash-section-title">{{ heading }}</h3>
-            <div class="row g-4">
+            <h3 class="dash-section-title mb-3">{{ heading }}</h3>
+            <div class="row g-3">
                 {% for media in recommended %}
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
                         <div class="explore-card">
@@ -137,7 +142,7 @@
                                 <form method="POST" action="/subscribe">
                                     <input type="hidden" name="media_id" value="{{ media[0] }}">
                                     <input type="hidden" name="next" value="{{ url_for('user_dashboard') }}">
-                                    <button type="submit" class="btn explore-subscribe-btn w-100">Subscribe</button>
+                                    <button type="submit" class="btn explore-subscribe-btn w-100">Add to Watchlist</button>
                                 </form>
                             </div>
                         </div>
@@ -146,8 +151,8 @@
                     <div class="col-12">
                         <div class="explore-empty">
                             <span class="material-symbols-outlined">movie</span>
-                            <h4>Nothing left to subscribe to</h4>
-                            <p>You're already subscribed to everything.</p>
+                            <h4>Nothing left to discover</h4>
+                            <p>You've added all available titles to your watchlist.</p>
                         </div>
                     </div>
                 {% endfor %}

@@ -11,16 +11,17 @@
 <body>
     <div class="container-fluid px-4 px-lg-5 py-4">
         {% include '_header.html' %}
-
-        {% if request.args.get('added')=='1' %}
-            <div class='toast-container position-fixed top-0 end-0 p-3'>
-                <div id='addToast' class='toast streamax-toast' role='alert'>
-                    <div class='toast-body'>
-                        <span class='toast-icon'>✓</span>Added to Watchlist.
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class='toast-container position-fixed top-0 end-0 p-3'>
+                    <div id='addToast' class='toast streamax-toast' role='alert'>
+                        <div class='toast-body'>
+                            <span class='toast-icon'>✓</span>{{messages[0]}}
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
+        {% endwith %}
 
         <main class='media-details-pg mt-4'>
            <div class="media-feature"

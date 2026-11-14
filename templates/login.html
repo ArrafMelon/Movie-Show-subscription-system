@@ -23,15 +23,20 @@
                 <h2 class='mt-3'>Welcome back!</h2>
             </div>
 
-            {% if message %}
-                <div class="toast-container position-fixed top-0 end-0 p-3">
-                    <div id="msgToast" class="toast streamax-toast" role="alert">
-                        <div class="toast-body">
-                            <span class="toast-icon">✓</span> {{message}}
+            {% with messages = get_flashed_messages() %}
+                {% if message or messages %}
+                    <div class='toast-container position-fixed top-0 end-0 p-3'>
+                        <div id='msgToast' class='toast streamax-toast' role='alert'>
+                            <div class='toast-body'>
+                                <span class='toast-icon'>✓</span>
+                                {%if message %} {{message}}
+                                {% else%} {{messages[0]}}
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% endif %}
+                {% endif %}
+            {% endwith %}
 
             <form method="POST">   
                 <div class="mb-3 w-100">     
@@ -64,15 +69,6 @@
             toast.show();
         }
     </script>
-
-    <!-- auto redirect after success login -->
-    {% if redirect_after_login %}
-        <script>
-            setTimeout(function() {
-                window.location.href='/';
-            }, 2000);
-        </script>
-    {% endif %}
 
 </body>
 </html>
