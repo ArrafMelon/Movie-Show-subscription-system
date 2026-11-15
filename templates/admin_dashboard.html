@@ -169,7 +169,6 @@
                 {% endfor %}
             </div>
 
-
             <div class="row g-4 mt-1">
                 <!-- most subscribed -->
                 <div class="col-12 col-lg-7">
@@ -299,6 +298,51 @@
         </main>
     </div>
 
+                <!-- user complaints -->
+            <div class="dash-panel mt-4" id="complaints">
+                <div class='dash-panel-head'>
+                    <div>
+                        <h3>User Complaints</h3>
+                        <p>{{ open_complaints|length }} unresolved. Mark a complaint as resolved once it has been dealt with.</p>
+                    </div>
+                </div>
+
+                {% for c in open_complaints %}
+                    <div class="subs-user-row">
+                        <div class='subs-user-info'>
+                            <span class="subs-user-name">{{ c[4] or 'Unknown user' }}</span>
+                            <p class="mb-1">{{ c[1] }} | Complaint #{{ c[0] }}</p>
+                            <p style="white-space: pre-wrap;">{{ c[2] }}</p>
+                        </div>
+
+                        <form method='POST' action="{{ url_for('resolve_complaint') }}" class="subs-user-form">
+                            <input type='hidden' name='complaint_id' value="{{ c[0] }}">
+                            <button type='submit' class='btn subs-save-btn'>Resolve</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class='admin-empty-state'>
+                        <span class='material-symbols-outlined'>check_circle</span>
+                        <h4>No Unresolved Complaints</h4>
+                        <p>Everything has been dealt with.</p>
+                    </div>
+                {% endfor %}
+
+                {% if resolved_complaints %}
+                    <details class="mt-3">
+                        <summary>Resolved complaints ({{ resolved_complaints|length }})</summary>
+                        {% for c in resolved_complaints %}
+                            <div class="subs-user-row">
+                                <div class='subs-user-info'>
+                                    <span class="subs-user-name">{{ c[4] or 'Unknown user' }}</span>
+                                    <p class="mb-1">{{ c[1] }} | Complaint #{{ c[0] }}</p>
+                                    <p style="white-space: pre-wrap;">{{ c[2] }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </details>
+                {% endif %}
+            </div>
 
     {% with messages = get_flashed_messages() %}
         {% if messages %}

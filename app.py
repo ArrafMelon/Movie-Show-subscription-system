@@ -632,7 +632,13 @@ def admin_dashboard():
     new_members = connection.execute("SELECT name, email, account_type FROM user_details ORDER BY id DESC LIMIT 5").fetchall()
     plan_prices = connection.execute("SELECT subscription_type, subscription_price FROM subscription_details ORDER BY subscription_type").fetchall()
     all_users = connection.execute("SELECT id, name, email, subscription_type FROM user_details WHERE account_type='User' ORDER BY id").fetchall()
+    #connection.close()
+    
+    # complaints submitted by users (newest first)
+    all_complaints = connection.execute("SELECT contact_support.complaint_id, contact_support.user_email, contact_support.user_complaint, contact_support.status, user_details.name FROM contact_support LEFT JOIN user_details ON contact_support.user_id=user_details.id ORDER BY contact_support.complaint_id DESC").fetchall()
     connection.close()
+    open_complaints = [c for c in all_complaints if c[3] == 1]
+    resolved_complaints = [c for c in all_complaints if c[3] == 2]
 
     # average subscriptions per user
     avg_subs = 0
@@ -671,7 +677,8 @@ def admin_dashboard():
                            top_media=all_media[:5], top_subs=top_subs,
                            top_genres=top_genres, max_genre_subs=max_genre_subs,
                            recent_media=recent_media, no_subs=no_subs[:5],
-                           new_members=new_members, plan_prices=plan_prices, all_users=all_users)
+                           new_members=new_members, plan_prices=plan_prices, all_users=all_users,
+                           open_complaints=open_complaints, resolved_complaints=resolved_complaints)
 
 @app.route('/update_subscription_price', methods=['POST'])
 def update_subscription_price():
@@ -720,6 +727,26 @@ def update_user_subscription():
         if subscription_type==0: flash("Selected user's subscription has been cancelled successfully", "Success")
         else: flash("Selected user's subscription has been updated successfully", "Success")
     return redirect(url_for('admin_dashboard'))
+
+@app.route('/resolve_complaint', methods=['POST'])
+def resolve_complaint():
+    # Admin access only
+    if 'email' not in session: return render_template('login.html', message="Please log into account first")
+    if session['account_type'] != 'Admin': return redirect(url_for('user_dashboard'))
+
+    try:
+        complaint_id = int(request.form['complaint_id'])
+    except (ValueError, KeyError): return redirect(url_for('admin_dashboard'))
+
+    # status 1 = unresolved, status 2 = resolved
+    connection = sqlite3.connect('subscription.db')
+    cursor = connection.execute("UPDATE contact_support SET status=2 WHERE complaint_id=? AND status=1", (complaint_id,))
+    connection.commit()
+    connection.close()
+
+    if cursor.rowcount > 0:
+        flash("Complaint marked as resolved", "Success")
+    return redirect(url_for('admin_dashboard') + '#complaints')
 
 if __name__ == '__main__':
     app.run(debug=True)
