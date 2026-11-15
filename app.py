@@ -74,7 +74,7 @@ connection.execute("""
 # add default prices if subscription_details is empty(won't be overwritten by any other changes admin makes)
 connection.execute("INSERT OR IGNORE INTO subscription_details (subscription_type, subscription_price) VALUES (1, 7.99)")
 connection.execute("INSERT OR IGNORE INTO subscription_details (subscription_type, subscription_price) VALUES (2, 12.99)")
-
+connection.commit()
 connection.close()
 
 # Flask app
@@ -723,4 +723,3 @@ def update_user_subscription():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
