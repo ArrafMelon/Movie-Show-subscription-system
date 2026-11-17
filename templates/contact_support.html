@@ -12,13 +12,24 @@
     <div class="container-fluid min-vh-100 d-flex flex-column px-4 px-lg-5 py-4">
         {% include '_header.html' %}
 
-        <div class='card-design w-100 mx-auto my-auto' style='max-width: 500px;'>
-            <h2 class='mb-4 text-center'>Contact Support</h2>
-            <p class='text-center form-message'>{{ message }}</p>
+        {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class='toast-container position-fixed top-0 end-0 p-3'>
+                        <div id='complainToast' class='toast streamax-toast' role='alert'>
+                            <div class='toast-body'>
+                                <span class='toast-icon'>✓</span>{{messages[0]}}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endwith %}
 
-            <form method="POST" action="/user_support" class='account-form'>
+            <div class='card-design w-100 mx-auto mt-5 mb-4 p-4' style='max-width: 500px;'>
+            <h2 class='mb-4 text-center'>Contact Support</h2>
+
+            <form method="POST" action="{{ url_for('contact_support')}}" class='account-form'>
                 <div class='mb-4 w-100'>
-                    <label for='user_support' class='form-label'>How can we help?</label>
+                    <label for='user_complaint' class='form-label'>How can we help?</label>
                     <textarea class='form-control' id='user_complaint' name='user_complaint' rows='5'
                         placeholder='Describe your complaint' required></textarea>
                 </div>
@@ -32,7 +43,7 @@
     </div>
 
     <script>
-        const toastElem = document.getElementById('changeToast');
+        const toastElem = document.getElementById('complainToast');
         if (toastElem) {
             const toast = new bootstrap.Toast(toastElem, {delay:2000});
             toast.show();

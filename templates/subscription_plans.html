@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
@@ -13,16 +14,11 @@
         {% include '_header.html' %}
 
         {% with messages = get_flashed_messages() %}
-            {% if message or messages %}
+            {% if messages %}
                 <div class='toast-container position-fixed top-0 end-0 p-3'>
                     <div id='changeToast' class='toast streamax-toast' role='alert'>
                         <div class='toast-body'>
-                            <span class='toast-icon'>✓</span>
-                            
-                            {% if message %} {{message}}
-                            {% else %} {{ messages[0]}}
-                            {%endif %}
-
+                            <span class='toast-icon'>✓</span>{{ messages[0]}}
                         </div>
                     </div>
                 </div>
@@ -58,7 +54,15 @@
             <!-- Select plan -->
             <div id="planSelection" {% if session.subscription_type != 0 %}style="display: none;"{% endif %}>
                 
-                <form method="POST" action="/subscription_plan_user" class='account-form'>
+                <form method="POST" action="{{ url_for('subscription_plan')}}" class='account-form'>
+
+                    {% if message %}
+                        <div class="form-message mb-4" role='alert'>
+                            <span class='material-symbols-outlined'>error</span>
+                            <span>{{message}}</span>
+                        </div>
+                    {% endif %}
+                    
                     <h5 class="text-center mb-3">
                         {% if session.subscription_type !=0 %} Choose a New Plan
                         {% else %} Choose Your Plan
@@ -157,7 +161,7 @@
 
             <!-- Cancel Subs -->
             {% if session.subscription_type != 0%}
-            <form method="POST" action="/cancel_subscription" class="text-center mt-4"
+            <form method="POST" action={{url_for('cancel_subscription')}} class="text-center mt-4"
             onsubmit="return confirm('Are you sure you want to cancel your subscription?');">
                 <button type="submit" class="btn btn-danger w-100 cancel-subs-btn">Cancel Subscription</button>
             </form>

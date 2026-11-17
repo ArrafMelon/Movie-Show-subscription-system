@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
@@ -35,20 +36,23 @@
                 <h2 class='mt-3'>Create an Account</h2>
             </div> 
             {% if message %}
-                <p class="text-center form-message">{{ message }}</p>
-            {% endif%}
+                <div class="form-message mb-4" role='alert'>
+                    <span class='material-symbols-outlined'>error</span>
+                    <span>{{message}}</span>
+                </div>
+            {% endif %}
 
             <form method="POST">
                 <div class="mb-3 w-100">
                     <label for='name' class='form-label'>Name</label>
                     <input type="text" class='form-control' id='name' name="name"
-                        placeholder="Enter your name">
+                        placeholder="Enter your name" value="{{ request.form.get('name', '')}}" required>
                 </div>
 
                 <div class="mb-3 w-100">
                     <label for='email' class='form-label'>Email</label>
                     <input type="email" class='form-control' id='email' name="email"
-                        placeholder="Enter your email address">
+                        placeholder="Enter your email address" value="{{ request.form.get('email', '')}}" required>
                 </div>
 
                 <div class="mb-3 w-100">
@@ -56,16 +60,8 @@
                     <input type="password" class='form-control' id='password' name="password"
                         placeholder="Enter your password">  
                 </div>
-
-                <div class="mb-3 w-100">   
-                    <label for='account_type' class='form-label'>Account type</label>
-                    <select class='form-control' id='account_type' name="account_type">
-                        <option value="User">User</option>
-                        <option value="Admin">Admin</option>
-                    </select>
-                </div>
-  
-                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                
+                <button type="submit" class="btn btn-primary w-100 mt-1">Register</button>
             </form>
  
             <div class='text-center mt-4 login-footer'>

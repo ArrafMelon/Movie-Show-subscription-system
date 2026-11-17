@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
@@ -26,7 +27,12 @@
         
         <div class='card-design w-100 mx-auto my-auto' style='max-width: 500px;'>
             <h2 class='mb-4 text-center'>Change Password</h2>
-            <p class='text-center form-message'>{{ message }}</p>
+                {% if message %}
+                    <div class="form-message mb-4" role='alert'>
+                        <span class='material-symbols-outlined'>error</span>
+                        <span>{{message}}</span>
+                    </div>
+                {% endif %}
 
             <form method="POST" class='account-form'>
                 <div class='mb-4 w-100'>

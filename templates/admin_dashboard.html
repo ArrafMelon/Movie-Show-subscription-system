@@ -21,348 +21,445 @@
                     <h2>Admin Dashboard</h2>
                     <p>An overview of your media and members.</p>
                 </div>
-                <a href="/addmedia" class="btn add-media-btn">Add New Media</a>
             </div>
 
-            <!-- numbers -->
-            <div class="row g-3">
-                <div class="col-6 col-md-4 col-xl-2">
-                    <div class="dash-stat admin-stat">
-                        <span class="material-symbols-outlined">video_library</span>
-                        <div>
-                            <div class="dash-stat-value">{{ total_media }}</div>
-                            <p class="dash-stat-label">Total Titles</p>
-                        </div>
-                    </div>
-                </div>
+            <!-- ADMIN DASHBOARD FOLDER TABS -->
+            <ul class="nav nav-tabs admin-folder-tabs mt-4" id='adminDashboardTabs' role='tablist'>
 
-                <div class="col-6 col-md-4 col-xl-2">
-                    <div class="dash-stat admin-stat">
-                        <span class="material-symbols-outlined">movie</span>
-                        <div>
-                            <div class="dash-stat-value">{{ total_movies }}</div>
-                            <p class="dash-stat-label">Movies</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-xl-2">
-                    <div class="dash-stat admin-stat">
-                        <span class="material-symbols-outlined">tv</span>
-                        <div>
-                            <div class="dash-stat-value">{{ total_shows }}</div>
-                            <p class="dash-stat-label">TV Shows</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-xl-2">
-                    <div class="dash-stat admin-stat">
+                <li class="nav-item" role='presentation'>
+                    <button class='nav-link active' id='overview-tab' data-bs-toggle='tab' data-bs-target='#overview' 
+                        type='button' role='tab' aria-controls='overview' aria-selected='true'>
+                        <span class="material-symbols-outlined">dashboard</span>
+                        <span class='folder-tab-label'>Overview</span>
+                    </button>
+                </li>
+                <li class="nav-item" role='presentation'>
+                    <button class='nav-link' id='users-tab' data-bs-toggle='tab' data-bs-target='#users' 
+                        type='button' role='tab' aria-controls='users' aria-selected='false'>
                         <span class="material-symbols-outlined">group</span>
-                        <div>
-                            <div class="dash-stat-value">{{ total_users }}</div>
-                            <p class="dash-stat-label">Registered Users</p>
-                        </div>
-                    </div>
-                </div>
+                        <span class='folder-tab-label'>Users</span>
+                    </button>
+                </li>
+                <li class="nav-item" role='presentation'>
+                    <button class='nav-link' id='platform-tab' data-bs-toggle='tab' data-bs-target='#platform' 
+                        type='button' role='tab' aria-controls='platform' aria-selected='false'>
+                        <span class="material-symbols-outlined">tune</span>
+                        <span class='folder-tab-label'>Platform</span>
+                    </button>
+                </li>
+                <li class="nav-item" role='presentation'>
+                    <button class='nav-link' id='support-tab' data-bs-toggle='tab' data-bs-target='#support' 
+                        type='button' role='tab' aria-controls='support' aria-selected='false'>
+                        <span class="material-symbols-outlined">support_agent</span>
+                        <span class='folder-tab-label'>Support</span>
+                    </button>
+                </li>
+            </ul>
 
-                <div class="col-6 col-md-4 col-xl-2">
-                    <div class="dash-stat admin-stat">
-                        <span class="material-symbols-outlined">subscriptions</span>
-                        <div>
-                            <div class="dash-stat-value">{{ total_subs }}</div>
-                            <p class="dash-stat-label">Active Subscriptions</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-xl-2">
-                    <div class="dash-stat admin-stat">
-                        <span class="material-symbols-outlined">trending_up</span>
-                        <div>
-                            <div class="dash-stat-value">{{ subs_rate }}%</div>
-                            <p class="dash-stat-label">Subscriber Rate</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Manage subs prices -->
-            <div class="dash-panel mt-4">
-                <div class='dash-panel-head'>
-                    <div>
-                        <h3>Subscription Plan Pricing</h3>
-                        <p>Update the monthly prices for each plan.</p>
-                    </div>
-                </div>
-
-                <div class='row g-3'>
-                    {% for plan in plan_prices %}
-                        <div class='col-12 col-md-6'>
-                            <div class="subs-admin-card">
-
-                                <div class="subs-admin-info">
-                                    <span class='admin-label'>
-                                        {% if plan[0]==1 %}STUDENT PLAN
-                                        {% else%}INDIVIDUAL PLAN
-                                        {% endif %}
-                                    </span>
-
-                                    <div class="subs-admin-price">
-                                        ${{ "%.2f"|format(plan[1])}}<small>/ month</small>
-                                    </div>
-
+            <!-- ALL CONTENT -->
+            <div class='tab-content admin-folder-content' id='adminDashboardTabContent'>
+            
+                <!-- OVERVIEW -->
+                <section class='tab-pane fade show active' id='overview' role='tabpanel'
+                    aria-labelledby='overview-tab' tabindex='0'>
+  
+                    <!-- numbers/stats -->
+                    <div class="row g-3 mt-1 px-3">
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <div class="dash-stat admin-stat">
+                                <span class="material-symbols-outlined">video_library</span>
+                                <div>
+                                    <div class="dash-stat-value">{{ total_media }}</div>
+                                    <p class="dash-stat-label">Total Titles</p>
                                 </div>
-
-                                <form method="POST" action="{{ url_for('update_subscription_price')}}">
-                                    <input type='hidden' name='subscription_type' value="{{plan[0]}}">
-
-                                    <label class='form-label'>New monthly price</label>
-                                    <div class='d-flex gap-2'>
-                                        <input type='number' name='subscription_price' class='form-control' 
-                                            value="{{plan[1]}}" min='0.01' step='0.01' required>
-                                        
-                                        <button type='submit' class='btn subs-save-btn'>Save</button>
-                                    </div>
-                                </form>
-
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
-            </div>
 
-            <!-- Manage user subs -->
-            <div class="dash-panel mt-4">
-                <div class='dash-panel-head'>
-                    <div>
-                        <h3>Manage User Subscriptions</h3>
-                        <p>Change or cancel a user's current subscription.</p>
-                    </div>
-                </div>
-
-                <input type='text' id='userSearch' class="form-control mb-3" placeholder='Search users by name or email...'>
-
-                {% for user in all_users %}
-                    <div class="subs-user-row" data-user-search="{{(user[1] ~ ' ' ~ user[2])|lower}}">
-                        <div class='subs-user-info'>
-                            <span class="subs-user-name">{{user[1]}}</span>
-                            <p>{{ user[2]}}</p>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <div class="dash-stat admin-stat">
+                                <span class="material-symbols-outlined">movie</span>
+                                <div>
+                                    <div class="dash-stat-value">{{ total_movies }}</div>
+                                    <p class="dash-stat-label">Movies</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <form method='POST' action="{{url_for('update_user_subscription')}}"
-                            class="subs-user-form" data-user-name="{{user[1]}}" onsubmit="return confirmUserSubscription(this)">
-                        
-                            <input type='hidden' name='user_id' value="{{user[0]}}">
-                            <select name='subscription_type' class='form-select'>
-                                <option value='0' {% if user[3] == 0%}selected{% endif %}>No Subscription</option>
-                                <option value='1' {% if user[3] == 1%}selected{% endif %}>Student Plan</option>
-                                <option value='2' {% if user[3] == 2%}selected{% endif %}>Individual Plan</option>
-                            </select>
-
-                            <button type='submit' class='btn subs-save-btn'>Save</button>
-
-                        </form>
-                    </div>
-                {% else %}
-                    <p class='dash-empty'>No registered users yet.</p>
-                {% endfor %}
-            </div>
-
-            <div class="row g-4 mt-1">
-                <!-- most subscribed -->
-                <div class="col-12 col-lg-7">
-                    <div class="dash-panel">
-                        <div class="dash-panel-head">
-                            <h3>Most Added to Watchlist</h3>
-                            <a href="/search_media">View all media</a>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <div class="dash-stat admin-stat">
+                                <span class="material-symbols-outlined">tv</span>
+                                <div>
+                                    <div class="dash-stat-value">{{ total_shows }}</div>
+                                    <p class="dash-stat-label">TV Shows</p>
+                                </div>
+                            </div>
                         </div>
 
-                        {% for media in top_media %}
-                            <div class="dash-row">
-                                <a href="{{ url_for('media_details', media_id=media[0]) }}">
-                                    <img src="{{ url_for('static', filename='images/' + media[4]) }}"
-                                        alt="{{ media[1] }}" class="dash-thumb">
-                                </a>
-                                <div class="dash-row-info">
-                                    <a href="{{ url_for('media_details', media_id=media[0]) }}" class="dash-row-title">{{ media[1] }}</a>
-                                    <p class="dash-row-meta">{{ media[3] }} | {{ media[5] }}</p>
-                                    <div class="dash-bar">
-                                        <div class="dash-bar-fill"
-                                            style="width: {{ (media[9] / top_subs * 100) if top_subs else 0 }}%">
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <div class="dash-stat admin-stat">
+                                <span class="material-symbols-outlined">group</span>
+                                <div>
+                                    <div class="dash-stat-value">{{ total_users }}</div>
+                                    <p class="dash-stat-label">Registered Users</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <div class="dash-stat admin-stat">
+                                <span class="material-symbols-outlined">subscriptions</span>
+                                <div>
+                                    <div class="dash-stat-value">{{ total_subs }}</div>
+                                    <p class="dash-stat-label">Active Subscriptions</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <div class="dash-stat admin-stat">
+                                <span class="material-symbols-outlined">trending_up</span>
+                                <div>
+                                    <div class="dash-stat-value">{{ subs_rate }}%</div>
+                                    <p class="dash-stat-label">Subscriber Rate</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mt-1">
+                        <!-- most subscribed -->
+                        <div class="col-12 col-lg-7">
+                            <div class="dash-panel">
+                                <div class="dash-panel-head">
+                                    <h3>Most Added to Watchlist</h3>
+                                    <a href="{{url_for('search_media')}}">View all media</a>
+                                </div>
+        
+                                {% for media in top_media %}
+                                    <div class="dash-row">
+                                        <a href="{{ url_for('media_details', media_id=media[0]) }}">
+                                            <img src="{{ url_for('static', filename='images/' + media[4]) }}"
+                                                alt="{{ media[1] }}" class="dash-thumb">
+                                        </a>
+                                        <div class="dash-row-info">
+                                            <a href="{{ url_for('media_details', media_id=media[0]) }}" class="dash-row-title">{{ media[1] }}</a>
+                                            <p class="dash-row-meta">{{ media[3] }} | {{ media[5] }}</p>
+                                            <div class="dash-bar">
+                                                <div class="dash-bar-fill"
+                                                    style="width: {{ (media[9] / top_subs * 100) if top_subs else 0 }}%">
+                                                </div>
+                                            </div>
                                         </div>
+                                        <span class="dash-count">{{ media[9] }}</span>
+                                    </div>
+                                {% else %}
+                                    <p class="dash-empty">No media added yet.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+        
+                        <!-- genres -->
+                        <div class="col-12 col-lg-5">
+                            <div class="dash-panel">
+                                <div class="dash-panel-head">
+                                    <h3>Top Genres by Watchlist Activity</h3>
+                                </div>
+        
+                                {% for genre, count in top_genres %}
+                                    <div class="admin-genre-row">
+                                        <div class="admin-genre-name">
+                                            <span class='admin-genre-rank'>{{ loop.index }}</span>
+                                            <span>{{genre}}</span>
+                                        </div>
+                                        <span class='admin-genre-count'>{{ count }} {{'entry' if count==1 else 'entries'}}</span>
+                                    </div>
+                                {% else %}
+                                    <p class="dash-empty">No genres yet.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="row g-4 mt-1">
+                        <!-- newest media -->
+                        <div class="col-12 col-lg-4">
+                            <div class="dash-panel">
+                                <div class="dash-panel-head">
+                                    <h3>Recently Added Titles</h3>
+                                </div>
+        
+                                {% for media in recent_media %}
+                                    <div class="dash-row">
+                                        <img src="{{ url_for('static', filename='images/' + media[4]) }}"
+                                            alt="{{ media[1] }}" class="dash-thumb">
+                                        <div class="dash-row-info">
+                                            <a href="{{ url_for('media_details', media_id=media[0]) }}" class="dash-row-title">{{ media[1] }}</a>
+                                            <p class="dash-row-meta">{{ media[5] }}</p>
+                                        </div>
+                                        <span class="media-type">{{ media[3] }}</span>
+                                    </div>
+                                {% else %}
+                                    <p class="dash-empty">No media added yet.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+        
+                        <!-- media nobody subscribed to -->
+                        <div class="col-12 col-lg-4">
+                            <div class="dash-panel">
+                                <div class="dash-panel-head">
+                                    <h3>Titles Not Yet Added to Watchlists</h3>
+                                </div>
+        
+                                {% for media in no_subs %}
+                                    <div class="dash-row">
+                                        <img src="{{ url_for('static', filename='images/' + media[4]) }}"
+                                            alt="{{ media[1] }}" class="dash-thumb">
+                                        <div class="dash-row-info">
+                                            <a href="{{ url_for('media_details', media_id=media[0]) }}" class="dash-row-title">{{ media[1] }}</a>
+                                            <p class="dash-row-meta">{{ media[5] }}</p>
+                                        </div>
+                                        <span class="media-type">{{ media[3] }}</span>
+                                    </div>
+                                {% else %}
+                                    <div class='admin-empty-state'>
+                                        <span class='material-symbols-outlined'>check_circle</span>
+                                        <h4>All Caught Up!</h4>
+                                        <p>Every title has been added to at least one watchlist.</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+        
+                        <!-- newest people -->
+                        <div class="col-12 col-lg-4">
+                            <div class="dash-panel">
+                                <div class="dash-panel-head">
+                                    <h3>Recently Registered Members</h3>
+                                </div>
+        
+                                {% for member in new_members %}
+                                    <div class="dash-row">
+                                        <div class="dash-row-info">
+                                            <span class="dash-row-name">{{ member[0] }}</span>
+                                            <p class="dash-row-meta">{{ member[1] }}</p>
+                                        </div>
+                                        <span class="media-type">{{ member[2] }}</span>
+                                    </div>
+                                {% else %}
+                                    <p class="dash-empty">No members yet.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+
+                <!-- USERS -->
+                <section class='tab-pane fade' id='users' role='tabpanel'
+                    aria-labelledby='users-tab' tabindex='0'>
+
+                    <!-- Manage user subs -->
+                    <div class="dash-panel mt-4">
+                        <div class='dash-panel-head'>
+                            <div>
+                                <h3>Manage User Subscriptions</h3>
+                                <p>Change or cancel a user's current subscription.</p>
+                            </div>
+                        </div>
+
+                        <input type='text' id='userSearch' class="form-control mb-3" placeholder='Search users by name or email...'>
+
+                        {% for user in all_users %}
+                            <div class="subs-user-row" data-user-row data-user-search="{{(user[1] ~ ' ' ~ user[2])|lower}}">
+                                <div class='subs-user-info'>
+                                    <span class="subs-user-name">{{user[1]}}</span>
+                                    <p>{{ user[2]}}</p>
+                                </div>
+
+                                <form method='POST' action="{{url_for('update_user_subscription')}}"
+                                    class="subs-user-form" data-user-name="{{user[1]}}" onsubmit="return confirmUserSubscription(this)">
+                                
+                                    <input type='hidden' name='user_id' value="{{user[0]}}">
+                                    <select name='subscription_type' class='form-select'>
+                                        <option value='0' {% if user[3] == 0%}selected{% endif %}>No Subscription</option>
+                                        <option value='1' {% if user[3] == 1%}selected{% endif %}>Student Plan</option>
+                                        <option value='2' {% if user[3] == 2%}selected{% endif %}>Individual Plan</option>
+                                    </select>
+
+                                    <button type='submit' class='btn subs-save-btn'>Save</button>
+
+                                </form>
+                            </div>
+                        {% else %}
+                            <p class='dash-empty'>No registered users yet.</p>
+                        {% endfor %}
+                    </div>
+                </section>
+
+
+                <!-- PLATFORM -->
+                <section class='tab-pane fade' id='platform' role='tabpanel'
+                    aria-labelledby='platform-tab' tabindex='0'>
+
+                    <!-- add new media mgmt -->
+                    <div class="dash-panel mt-4">
+                        <div class='dash-panel-head'>
+                            <div>
+                                <h3>Media Management</h3>
+                                <p>Add new titles or browse the existing media catalogue.</p>
+                            </div>
+                        </div>
+
+                        <div class='d-flex flex-wrap gap-2'>
+                            <a href="{{url_for('add_media')}}" class="btn add-media-btn">Add New Media</a>
+                            <a href="{{url_for('search_media')}}" class="btn add-media-btn">View Media Catalogue</a>
+                        </div>
+                    </div>
+
+                    <!-- Manage subs prices -->
+                    <div class="dash-panel mt-4">
+                        <div class='dash-panel-head'>
+                            <div>
+                                <h3>Subscription Plan Pricing</h3>
+                                <p>Update the monthly prices for each plan.</p>
+                            </div>
+                        </div>
+
+                        <div class='row g-3'>
+                            {% for plan in plan_prices %}
+                                <div class='col-12 col-md-6'>
+                                    <div class="subs-admin-card">
+
+                                        <div class="subs-admin-info">
+                                            <span class='admin-label'>
+                                                {% if plan[0]==1 %}STUDENT PLAN
+                                                {% else%}INDIVIDUAL PLAN
+                                                {% endif %}
+                                            </span>
+
+                                            <div class="subs-admin-price">
+                                                ${{ "%.2f"|format(plan[1])}}<small>/ month</small>
+                                            </div>
+
+                                        </div>
+
+                                        <form method="POST" action="{{ url_for('update_subscription_price')}}">
+                                            <input type='hidden' name='subscription_type' value="{{plan[0]}}">
+
+                                            <label class='form-label'>New monthly price</label>
+                                            <div class='d-flex gap-2'>
+                                                <input type='number' name='subscription_price' class='form-control' 
+                                                    value="{{plan[1]}}" min='0.01' max='999.99' step='0.01' required>
+                                                
+                                                <button type='submit' class='btn subs-save-btn'>Save</button>
+                                            </div>
+                                        </form>
+
                                     </div>
                                 </div>
-                                <span class="dash-count">{{ media[9] }}</span>
-                            </div>
-                        {% else %}
-                            <p class="dash-empty">No media added yet.</p>
-                        {% endfor %}
+                            {% endfor %}
+                        </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- genres -->
-                <div class="col-12 col-lg-5">
-                    <div class="dash-panel">
-                        <div class="dash-panel-head">
-                            <h3>Top Genres by Watchlist Activity</h3>
+
+                <!-- SUPPORT -->
+                <section class='tab-pane fade' id='support' role='tabpanel'
+                    aria-labelledby='support-tab' tabindex='0'>
+
+                    <!-- user complaints -->
+                    <div class="dash-panel mt-4" id="complaints">
+                        <div class='dash-panel-head'>
+                            <div>
+                                <h3>User Complaints</h3>
+                                <p>{{ open_complaints|length }} unresolved. Mark a complaint as resolved once it has been dealt with.</p>
+                            </div>
                         </div>
 
-                        {% for genre, count in top_genres %}
-                            <div class="admin-genre-row">
-                                <div class="admin-genre-name">
-                                    <span class='admin-genre-rank'>{{ loop.index }}</span>
-                                    <span>{{genre}}</span>
-                                </div>
-                                <span class='admin-genre-count'>{{ count }} {{'entry' if count==1 else 'entries'}}</span>
-                            </div>
-                        {% else %}
-                            <p class="dash-empty">No genres yet.</p>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-4 mt-1">
-                <!-- newest media -->
-                <div class="col-12 col-lg-4">
-                    <div class="dash-panel">
-                        <div class="dash-panel-head">
-                            <h3>Recently Added Titles</h3>
-                        </div>
-
-                        {% for media in recent_media %}
-                            <div class="dash-row">
-                                <img src="{{ url_for('static', filename='images/' + media[4]) }}"
-                                    alt="{{ media[1] }}" class="dash-thumb">
-                                <div class="dash-row-info">
-                                    <a href="{{ url_for('media_details', media_id=media[0]) }}" class="dash-row-title">{{ media[1] }}</a>
-                                    <p class="dash-row-meta">{{ media[5] }}</p>
-                                </div>
-                                <span class="media-type">{{ media[3] }}</span>
-                            </div>
-                        {% else %}
-                            <p class="dash-empty">No media added yet.</p>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- media nobody subscribed to -->
-                <div class="col-12 col-lg-4">
-                    <div class="dash-panel">
-                        <div class="dash-panel-head">
-                            <h3>Titles Not Yet Added to Watchlists</h3>
-                        </div>
-
-                        {% for media in no_subs %}
-                            <div class="dash-row">
-                                <img src="{{ url_for('static', filename='images/' + media[4]) }}"
-                                    alt="{{ media[1] }}" class="dash-thumb">
-                                <div class="dash-row-info">
-                                    <a href="{{ url_for('media_details', media_id=media[0]) }}" class="dash-row-title">{{ media[1] }}</a>
-                                    <p class="dash-row-meta">{{ media[5] }}</p>
-                                </div>
-                                <span class="media-type">{{ media[3] }}</span>
-                            </div>
-                        {% else %}
-                            <div class='admin-empty-state'>
-                                <span class='material-symbols-outlined'>check_circle</span>
-                                <h4>All Caught Up!</h4>
-                                <p>Every title has been added to at least one watchlist.</p>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- newest people -->
-                <div class="col-12 col-lg-4">
-                    <div class="dash-panel">
-                        <div class="dash-panel-head">
-                            <h3>Recently Registered Members</h3>
-                        </div>
-
-                        {% for member in new_members %}
-                            <div class="dash-row">
-                                <div class="dash-row-info">
-                                    <span class="dash-row-name">{{ member[0] }}</span>
-                                    <p class="dash-row-meta">{{ member[1] }}</p>
-                                </div>
-                                <span class="media-type">{{ member[2] }}</span>
-                            </div>
-                        {% else %}
-                            <p class="dash-empty">No members yet.</p>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-                <!-- user complaints -->
-            <div class="dash-panel mt-4" id="complaints">
-                <div class='dash-panel-head'>
-                    <div>
-                        <h3>User Complaints</h3>
-                        <p>{{ open_complaints|length }} unresolved. Mark a complaint as resolved once it has been dealt with.</p>
-                    </div>
-                </div>
-
-                {% for c in open_complaints %}
-                    <div class="subs-user-row">
-                        <div class='subs-user-info'>
-                            <span class="subs-user-name">{{ c[4] or 'Unknown user' }}</span>
-                            <p class="mb-1">{{ c[1] }} | Complaint #{{ c[0] }}</p>
-                            <p style="white-space: pre-wrap;">{{ c[2] }}</p>
-                        </div>
-
-                        <form method='POST' action="{{ url_for('resolve_complaint') }}" class="subs-user-form">
-                            <input type='hidden' name='complaint_id' value="{{ c[0] }}">
-                            <button type='submit' class='btn subs-save-btn'>Resolve</button>
-                        </form>
-                    </div>
-                {% else %}
-                    <div class='admin-empty-state'>
-                        <span class='material-symbols-outlined'>check_circle</span>
-                        <h4>No Unresolved Complaints</h4>
-                        <p>Everything has been dealt with.</p>
-                    </div>
-                {% endfor %}
-
-                {% if resolved_complaints %}
-                    <details class="mt-3">
-                        <summary>Resolved complaints ({{ resolved_complaints|length }})</summary>
-                        {% for c in resolved_complaints %}
-                            <div class="subs-user-row">
+                        {% for c in open_complaints %}
+                            <div class="subs-user-row admin-complaint-row">
                                 <div class='subs-user-info'>
                                     <span class="subs-user-name">{{ c[4] or 'Unknown user' }}</span>
                                     <p class="mb-1">{{ c[1] }} | Complaint #{{ c[0] }}</p>
                                     <p style="white-space: pre-wrap;">{{ c[2] }}</p>
                                 </div>
+
+                                <form method='POST' action="{{ url_for('resolve_complaint') }}" class="subs-user-form">
+                                    <input type='hidden' name='complaint_id' value="{{ c[0] }}">
+                                    <button type='submit' class='btn subs-save-btn'>Resolve</button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class='admin-empty-state'>
+                                <span class='material-symbols-outlined'>check_circle</span>
+                                <h4>No Unresolved Complaints</h4>
+                                <p>Everything has been dealt with.</p>
                             </div>
                         {% endfor %}
-                    </details>
+
+                        {% if resolved_complaints %}
+                            <details class="mt-3">
+                                <summary>Resolved complaints ({{ resolved_complaints|length }})</summary>
+                                {% for c in resolved_complaints %}
+                                    <div class="subs-user-row">
+                                        <div class='subs-user-info'>
+                                            <span class="subs-user-name">{{ c[4] or 'Unknown user' }}</span>
+                                            <p class="mb-1">{{ c[1] }} | Complaint #{{ c[0] }}</p>
+                                            <p style="white-space: pre-wrap;">{{ c[2] }}</p>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </details>
+                        {% endif %}
+                    </div>
+                </section>
+            </div>
+
+                    
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class='toast streamax-toast position-fixed top-0 end-0 m-4' id='adminToast'
+                        role='alert' aria-live='polite' aria-atomic='true'>
+
+                        <div class='toast-body'><span class='material-symbols-outlined'>check_circle</span>
+                        {{messages[0]}}
+                        </div>
+                    </div>
                 {% endif %}
-            </div>
+            {% endwith %}
+    
+        </main>
+    </div>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class='toast streamax-toast position-fixed top-0 end-0 m-4' id='adminToast'
-                role='alert' aria-live='polite' aria-atomic='true'>
-
-                <div class='toast-body'><span class='material-symbols-outlined'>check_circle</span>
-                {{messages[0]}}
-                </div>
-            </div>
-        {% endif %}
-    {% endwith %}
-
-
+               
     <script>
         const toastElem=document.getElementById('adminToast');
         if (toastElem) {
             const toast = new bootstrap.Toast(toastElem, {delay:3000});
             toast.show();
         }
+
+        // stay on same tab when refreshing
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('#adminDashboardTabs button[data-bs-toggle="tab"]');
+            
+            const savedTab=window.location.hash;
+            if (savedTab) {
+                const tabButton=document.querySelector(`#adminDashboardTabs button[data-bs-target="${savedTab}"]`);
+                if (tabButton) {
+                    bootstrap.Tab.getOrCreateInstance(tabButton).show();
+                }
+            }
+
+            tabButtons.forEach(function (button) {
+                button.addEventListener('shown.bs.tab', function(event) {
+                    const target=event.target.getAttribute('data-bs-target');
+                    history.replaceState(null, '', target);
+                });
+            });
+        });
     </script>
 
     <script>
@@ -371,7 +468,7 @@
             const selectedPlan = form.querySelector('select').value;
 
             if (selectedPlan=='0') {
-                return confirm(`Are you sure you want to cance ${userName}'s subscription?`);
+                return confirm(`Are you sure you want to cancel ${userName}'s subscription?`);
             }
 
             const planName = form.querySelector('select').selectedOptions[0].text;
@@ -382,7 +479,7 @@
             if (userSearch) {
             userSearch.addEventListener('input', function() {
                 const searchText = this.value.toLowerCase();
-                const userRows = document.querySelectorAll('.subs-user-row');
+                const userRows = document.querySelectorAll('[data-user-row]');
                 userRows.forEach(function(row) {
                     const userInfo = row.dataset.userSearch;
                     if (userInfo.includes(searchText)) { row.style.display='flex'; } 
