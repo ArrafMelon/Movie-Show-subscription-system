@@ -13,22 +13,22 @@
             <a href="/search_media">Explore</a>
 
             {% if session.account_type =="User"%}
-                <a href="/mywatchlist">My Watchlist</a>
-                <a href="/yourdashboard">Dashboard</a>
-                <a href="/subscription_plan_user">Subscription Plans</a>
-                <a href="/user_support">Contact Support</a>
+                <a href="{{url_for('my_watchlist')}}">My Watchlist</a>
+                <a href="{{url_for('user_dashboard')}}">Dashboard</a>
+                <a href="{{url_for('subscription_plan')}}">Subscription Plans</a>
+                <a href="{{url_for('contact_support')}}">Contact Support</a>
             {% endif %}
 
             {% if session.account_type =="Admin"%}
-                <a href="/addmedia">Add Media</a>
-                <a href="/admindashboard">Admin Dashboard</a>
+                <a href="{{url_for('add_media')}}">Add Media</a>
+                <a href="{{url_for('admin_dashboard')}}">Admin Dashboard</a>
             {% endif %}
                         
-            <a href="/accmgmt">Account</a>
-            <a href="/logout">Logout</a>
+            <a href="{{url_for('account_management')}}">Account</a>
+            <a href="{{url_for('logout')}}">Logout</a>
         {% else %}
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
+            <a href="{{url_for('login')}}">Login</a>
+            <a href="{{url_for('register')}}">Register</a>
         {% endif %}
     </nav>
 </header>

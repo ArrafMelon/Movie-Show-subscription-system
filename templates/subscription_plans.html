@@ -2,12 +2,7 @@
 <html>
 <head>
     <title>Subscription Plans | STREAMAX</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    {% include '_base_head.html' %}
 </head>
 <body>
     <div class="container-fluid min-vh-100 d-flex flex-column px-4 px-lg-5 py-4">
@@ -64,8 +59,8 @@
                     {% endif %}
                     
                     <h5 class="text-center mb-3">
-                        {% if session.subscription_type !=0 %} Choose a New Plan
-                        {% else %} Choose Your Plan
+                        {% if session.subscription_type !=0 %} Choose a New Subscription Plan
+                        {% else %} Choose a Subscription Plan
                         {% endif %} 
                     </h5>
 
@@ -105,7 +100,7 @@
                                     ${{"%.2f"|format(sub_prices[2])}}<small> CAD / month</small>
                                 </div>
 
-                                <p class="mb-3"> A standard plan for individual subscribers.</p>
+                                <p class="mb-3"> A standard for individual subscribers.</p>
 
                                 <ul class="mb-0">
                                     <li>Full catalogue browsing</li>
@@ -161,7 +156,7 @@
 
             <!-- Cancel Subs -->
             {% if session.subscription_type != 0%}
-            <form method="POST" action={{url_for('cancel_subscription')}} class="text-center mt-4"
+            <form method="POST" action="{{url_for('cancel_subscription')}}" class="text-center mt-4"
             onsubmit="return confirm('Are you sure you want to cancel your subscription?');">
                 <button type="submit" class="btn btn-danger w-100 cancel-subs-btn">Cancel Subscription</button>
             </form>
@@ -187,18 +182,23 @@
 
         //CC expiry
         const expiryInput =document.getElementById('expiry');
-        expiryInput.addEventListener('input', function() {
-            let value =this.value.replace(/\D/g, "").slice(0,4);
-            if (value.length>2) { value=value.slice(0,2)+"/"+value.slice(2); }
-            this.value=value;
-        });
+
+        if (expiryInput) {
+            expiryInput.addEventListener('input', function() {
+                let value =this.value.replace(/\D/g, "").slice(0,4);
+                if (value.length>2) { value=value.slice(0,2)+"/"+value.slice(2); }
+                this.value=value;
+            });
+        }
 
         const cardInput = document.getElementById('card_number');
-        cardInput.addEventListener('input', function() {
-            let value = this.value.replace(/\D/g, "").slice(0,16);
-            value=value.match(/.{1,4}/g)?.join("-") || "";
-            this.value = value;
-        });
+        if (cardInput) {
+            cardInput.addEventListener('input', function() {
+                let value = this.value.replace(/\D/g, "").slice(0,16);
+                value=value.match(/.{1,4}/g)?.join("-") || "";
+                this.value = value;
+            });
+        }
     </script>
 
 </body>

@@ -2,11 +2,7 @@
 <html>
 <head>
     <title>{{media[1]}} | STREAMAX</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    {% include '_base_head.html' %}
 </head>
 <body>
     <div class="container-fluid px-4 px-lg-5 py-4">
@@ -41,7 +37,7 @@
                         {% if media[3] == 'Show' %}
                             <span>{{media[7]}} seasons</span>
                             <span>{{media[8]}} episodes per season</span>
-                            <span>{{media[6]}}-minute per episode</span>
+                            <span>{{media[6]}} minutes per episode</span>
                         {% else %}
                             <span>{{media[6]}} minutes</span>
                         {% endif %}
@@ -49,9 +45,11 @@
                     <div class='media-actions'>
                         {% if session.account_type=="User" %}
                             {% if is_watchlisted %}
-                                <button class='btn watchlist-btn' disabled>Added to Watchlist</button>
+                                <button type='button' class='btn watchlist-btn' disabled>
+                                    <span class='material-symbols-outlined'>check_circle</span>Added to Watchlist
+                                </button>
                             {% else %}
-                                <form method="POST" action="/watchlist">
+                                <form method="POST" action="{{url_for('add_watchlist')}}">
                                     <input type="hidden" name="media_id" value="{{ media[0] }}">
                                     <input type="hidden" name="next" value="{{ url_for('media_details', media_id=media[0]) }}">
                                     <button type="submit" class="btn watchlist-btn">Add to Watchlist</button>
@@ -59,7 +57,7 @@
                             {% endif %}
                         {% endif %}
 
-                        <a href="/search_media" class='btn explore-btn'>Back to Explore</a>
+                        <a href="{{url_for('search_media')}}" class='btn explore-btn'>Back to Explore</a>
                     </div>
                      
                 </div>

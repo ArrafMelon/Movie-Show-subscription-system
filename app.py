@@ -409,47 +409,46 @@ def search_media():
         return redirect(url_for("subscription_plan"))
 
     # Users and admins being able to search media, filter, and users should be able to add to watchlist
-    if request.method == "GET":
-        genre = request.args.get("genre")
-        media_type = request.args.get("media_type")
-        search = request.args.get("search")
+    
+    genre = request.args.get("genre")
+    media_type = request.args.get("media_type")
+    search = request.args.get("search")
 
-        # fetching media from db using filters (genre filtre first)
-        connection = sqlite3.connect("subscription.db")
-        conditions = []
-        params=[]
+    # fetching media from db using filters (genre filtre first)
+    connection = sqlite3.connect("subscription.db")
+    conditions = []
+    params=[]
         
-        #genre filter
-        if genre:
-            conditions.append("',' || REPLACE(genre, ', ', ',') || ',' LIKE ?")
-            params.append(f"%,{genre},%")         
-        # media type filter
-        if media_type:
-            conditions.append("media_type=?")
-            params.append(media_type)
-        # search filter
-        if search and search.strip():
-            conditions.append("media_name LIKE ?")
-            params.append(f"%{search.strip()}%")
+    #genre filter
+    if genre:
+        conditions.append("',' || REPLACE(genre, ', ', ',') || ',' LIKE ?")
+        params.append(f"%,{genre},%")         
+    # media type filter
+    if media_type:
+        conditions.append("media_type=?")
+        params.append(media_type)
+    # search filter
+    if search and search.strip():
+        conditions.append("media_name LIKE ?")
+        params.append(f"%{search.strip()}%")
             
-        query = "SELECT * FROM media_details"
-        if conditions: query += " WHERE " + " AND ".join(conditions)
+    query = "SELECT * FROM media_details"
+    if conditions: query += " WHERE " + " AND ".join(conditions)
         
-        all_media = connection.execute(query, params).fetchall()
+    all_media = connection.execute(query, params).fetchall()
 
-        #already added to watchlist
-        watchlisted_ids =[]
-        if session.get("account_type")=="User":
-            user_id= session['id']
-            watchlisted_ids = [
-                row[0] for row in connection.execute(
-                    "SELECT media_id FROM user_watchlist WHERE user_id=?", (user_id,)
-                ).fetchall()
-            ]
+    #already added to watchlist
+    watchlisted_ids =[]
+    if session.get("account_type")=="User":
+        user_id= session['id']
+        watchlisted_ids = [
+            row[0] for row in connection.execute(
+                "SELECT media_id FROM user_watchlist WHERE user_id=?", (user_id,)
+            ).fetchall()
+        ]
             
-        connection.close()
-        return render_template("search_media.html", all_media=all_media, watchlisted_ids=watchlisted_ids)
-    return render_template("search_media.html")
+    connection.close()
+    return render_template("search_media.html", all_media=all_media, watchlisted_ids=watchlisted_ids)
 
 
 #####################
