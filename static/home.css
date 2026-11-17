@@ -67,6 +67,7 @@
     }
 }
 
+/* mobile */
 @media (max-width:575px) {
     .watchlist-img {
         height: 200px;
@@ -89,6 +90,15 @@
     .explore-filter-btn {width:100%;}
     .explore-poster{height:230px;}
     .explore-card-info{padding:10px;}
+
+    .admin-folder-tabs {gap:4px;}
+    .admin-folder-tabs .nav-link {
+        width:70px;
+        height: 70px;
+    }
+    .folder-tab-label {font-size:10px}
+    .admin-folder-content{padding: 14px;}
+    .admin-complaint-row{align-items:center;}
 }
 
 
@@ -695,7 +705,17 @@ a:hover {
 
 .form-message {
     color: var(--rose);
-    font-size: 13px;
+    font-size: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 13px 16px;
+    margin-bottom: 24px;
+    background: rgba(166, 107,134, 0.12);
+    border: 1px slid rgba(184,154,217,0.4);
+    border-radius: 8px;
+    font-family: "Inter", sans-serif;
+    line-height: 1.5;
 }
 
 .genre-options {
@@ -940,7 +960,10 @@ a:hover {
     font-size:13px;
     margin:8px 0 0;
 }
-/* Admin and User Dashboard Layout */
+
+/****************************/
+/* ADMIN AND USER DASHBOARD */
+/****************************/
 
 .dashboard-pg {
     width: 100%;
@@ -1164,12 +1187,6 @@ a:hover {
     color: var(--text-muted);
 }
 
-/* Admin Dashboard */
-.dash-panel-head p {
-    font-size: 12px;
-    margin: 5px 0 0;
-}
-
 #userSearch {
     background-color: var(--bg-main);
     color: var(--cream);
@@ -1234,7 +1251,7 @@ a:hover {
 .subs-admin-card .form-control:focus,
 .subs-user-form .form-select:focus {
     background: var(--bg-panel);
-    color: car(--cream);
+    color: var(--cream);
     border-color: var(--lavender);
     box-shadow: 0 0 0 2px rgba(184, 154, 217, .15);
 }
@@ -1285,9 +1302,111 @@ a:hover {
     max-width: 55%;
 }
 
+/*ADMIN DASHBOARD TABS */
+.admin-folder-tabs {
+    display: flex;
+    gap: 8px;
+    width: fit-content;
+    max-width: 100%;
+    border-bottom: none;
+    margin-bottom:0;
+}
+
+.admin-folder-tabs .nav-link {
+    width: 88px;
+    height: 76px;
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content: center;
+    gap:4px;
+    color: var(--cream);
+    background: var(--bg-panel);
+    border: 1px solid var(--lavender);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    transition: all 0.2s ease;
+}
+
+.admin-folder-tabs .nav-link .material-symbols-outlined {
+    font-size: 24px;
+}
+
+.folder-tab-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.admin-folder-tabs .nav-link:hover {
+    color: var(--lavender);
+    background: var(--bg-panel);
+    transform:translateY(-3px);
+}
+
+.admin-folder-tabs .nav-link.active:focus-visible {
+    outline: 2px solid var(--lavender);
+    outline-offset: -3px;
+}
+
+.admin-folder-tabs .nav-link.active,
+.admin-folder-tabs .nav-link.active:hover,
+.admin-folder-tabs .nav-link.active:focus {
+    color: var(--purple);
+    background: var(--bg-main);
+    border-color: var(--cream);
+    border-bottom: none;
+    margin-bottom:0;
+    transform: none;
+    box-shadow: none;
+    cursor: default;
+}
+
+/* tab content area */
+.admin-folder-content {
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 24px;
+    background: var(--bg-panel);
+    color: var(--cream);
+    border: 1px solid var(--lavender);
+    border-radius: 0 12px 12px 12px;
+}
+
+/* admin complaint rows */
+.admin-complaint-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 24px;
+    width: calc(100% - 32px);
+    margin: 0 16px;
+}
+
+.admin-complaint-row .subs-user-info {
+    width: 100%;
+    min-width: 0;
+}
+
+.admin-complaint-row .subs-user-info p {
+    width: 100%;
+    max-width: none;
+}
+
+.admin-complaint-row .subs-user-form {
+    width: auto;
+    max-width: none;
+    margin:0;
+    padding: 0;
+    justify-self: end;
+}
 
 
-/* Subscription page */
+/****************************/
+/*    SUBSCRIPTION PAGE     */
+/****************************/
+
 .plan-option {
     position: relative;
     display: block;

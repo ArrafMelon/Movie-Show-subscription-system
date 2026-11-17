@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
@@ -24,25 +24,30 @@
             </div>
 
             {% with messages = get_flashed_messages() %}
-                {% if message or messages %}
+                {% if messages %}
                     <div class='toast-container position-fixed top-0 end-0 p-3'>
                         <div id='msgToast' class='toast streamax-toast' role='alert'>
                             <div class='toast-body'>
                                 <span class='toast-icon'>✓</span>
-                                {%if message %} {{message}}
-                                {% else%} {{messages[0]}}
-                                {% endif %}
+                                {{messages[0]}}
                             </div>
                         </div>
                     </div>
                 {% endif %}
             {% endwith %}
 
-            <form method="POST">   
+            {% if message %}
+                <div class="form-message mb-4" role='alert'>
+                    <span class='material-symbols-outlined'>error</span>
+                    <span>{{message}}</span>
+                </div>
+            {% endif %}
+            <form method="POST" action="{{url_for('login')}}">   
+
                 <div class="mb-3 w-100">     
                     <label for='email' class='form-label'>Email</label>
                     <input type="email" class='form-control' id='email' name="email"
-                        placeholder="Enter your email" required>
+                        placeholder="Enter your email" value="{{ request.form.get('email', '')}}" required>
                 </div>
 
                 <div class="mb-4 w-100">

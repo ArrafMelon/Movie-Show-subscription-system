@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
@@ -32,19 +33,29 @@
             </div>
 
             <div class='add-media-card'>
-                <p class='form-message'>{{message}}</p>
+                {% if message %}
+                    <div class="form-message mb-4 mt-2" role='alert'>
+                        <span class='material-symbols-outlined'>error</span>
+                        <span>{{message}}</span>
+                    </div>
+                {% endif %}
                 
+                {% set selected_genre = request.form.getlist('genre') %}
+
                 <form method="POST" enctype="multipart/form-data">
+
                     <div class='mb-4'>
                         <label class='form-label'>Media Name</label>
                         <input type="text" name="media_name" class='form-control'
-                            placeholder="Enter movie or TV show title" required>
+                            placeholder="Enter movie or TV show title" 
+                            value="{{request.form.get('media_name','')}}"
+                            required>
                     </div>
 
                     <div class='mb-4'>
                         <label class='form-label'>Description</label>
                         <textarea name="description" class='form-control' rows='4'
-                            placeholder="Write a short description..." required></textarea>
+                            placeholder="Write a short description..." required>{{request.form.get('description','')}}</textarea>
                     </div>
 
                     <div class='row g-3 mb-4'>
@@ -52,15 +63,18 @@
                         <div class='col-12 col-md-6'>
                             <label class='form-label'>Media type (TV Show or Movie)</label>
                             <select name="media_type" class='form-select' required>
-                                <option value="Show">TV Show</option>
-                                <option value="Movie">Movie</option>
+                                <option value="Show" {% if request.form.get('media_type', 'Show')=='Show'%}selected{% endif %}>
+                                    TV Show</option>
+                                <option value="Movie" {% if request.form.get('media_type', 'Show')=='Movie'%}selected{% endif %}>
+                                    Movie</option>
                              </select>
                         </div>
 
                         <div class='col-12 col-md-6'>
                             <label class='form-label'>Length (in minutes)</label>
                             <input type="number" name="length_minutes" class='form-control'
-                                placeholder="For shows, enter minutes per episode" required>
+                                placeholder="For shows, enter minutes per episode" max='600' min='1' 
+                                value="{{request.form.get('length_minutes','')}}" required>
                         </div>
 
                     </div>
@@ -69,77 +83,92 @@
                         <label class='form-label'>Genre (Select all that apply)</label>
                         <div class='genre-options'>
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Action" id='action'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Action" id='action'
+                                {% if 'Action' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='action'>Action</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Adventure"id='adventure'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Adventure" id='adventure'
+                                {% if 'Adventure' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='adventure'>Adventure</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Animation" id='animation'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Animation" id='animation'
+                                {% if 'Animation' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='animation'>Animation</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Comedy" id='comedy'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Comedy" id='comedy'
+                                {% if 'Comedy' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='comedy'>Comedy</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Crime" id='crime'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Crime" id='crime'
+                                {% if 'Crime' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='crime'>Crime</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Drama" id='drama'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Drama" id='drama'
+                                {% if 'Drama' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='drama'>Drama</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Family" id='family'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Family" id='family'
+                                {% if 'Family' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='family'>Family</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Fantasy" id='fantasy'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Fantasy" id='fantasy'
+                                {% if 'Fantasy' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='fantasy'>Fantasy</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Horror" id='horror'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Horror" id='horror'
+                                {% if 'Horror' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='horror'>Horror</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Musical" id='musical'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Musical" id='musical'
+                                {% if 'Musical' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='musical'>Musical</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Mystery" id='mystery'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Mystery" id='mystery'
+                                {% if 'Mystery' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='mystery'>Mystery</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Romance" id='romance'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Romance" id='romance'
+                                {% if 'Romance' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='romance'>Romance</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Sci-fi" id='sci-fi'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Sci-fi" id='sci-fi'
+                                {% if 'Sci-fi' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='sci-fi'>Sci-fi</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Thriller" id='thriller'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Thriller" id='thriller'
+                                {% if 'Thriller' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='thriller'>Thriller</label>
                             </div>
 
                             <div class='form-check'>
-                                <input class='form-check-input' type='checkbox' name='genre' value="Others"id='others'>
+                                <input class='form-check-input' type='checkbox' name='genre' value="Others" id='others'
+                                {% if 'Others' in selected_genre %}checked{% endif %}>
                                 <label class='form-check-label' for='others'>Others</label>
                             </div>
                         </div>
@@ -153,13 +182,15 @@
                             <div class='col-12 col-md-6'>
                                 <label class='form-label'>Number of Seasons</label>
                                 <input type='number' name='num_seasons_show' 
-                                    class='form-control' placeholder="e.g. 3">
+                                    class='form-control' placeholder="e.g. 3" max='100' min='1'
+                                    value="{{request.form.get('num_seasons_show','')}}">
                             </div>
 
                             <div class='col-12 col-md-6'>
                                 <label class='form-label'>Episodes per Season</label>
                                 <input type='number' name='num_episodes_per_season_show' 
-                                    class='form-control' placeholder="e.g. 10">
+                                    class='form-control' placeholder="e.g. 10" max='1000' min='1'
+                                    value="{{request.form.get('num_episodes_per_season_show','')}}">
                             </div>
                         </div>
                     </div>
